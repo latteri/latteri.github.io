@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width initial-scale=1" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <title>WMI: Queries For Incident Response</title>
+  <meta name="description" content="VG9ueS5MYXR0ZXJpQEdtYWlsLmNvbQo=">
+  <meta name="author" content="Tony">
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Tony Latteri">
+  <meta name="twitter:description" content="VG9ueS5MYXR0ZXJpQEdtYWlsLmNvbQo=">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Tony Latteri">
+  <meta property="og:description" content="VG9ueS5MYXR0ZXJpQEdtYWlsLmNvbQo=">
+
+  <link rel="apple-touch-icon" sizes="57x57" href="/images/favicons/apple-touch-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/images/favicons/apple-touch-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/images/favicons/apple-touch-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/favicons/apple-touch-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/images/favicons/apple-touch-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/images/favicons/apple-touch-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/images/favicons/apple-touch-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/images/favicons/apple-touch-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicons/apple-touch-icon-180x180.png">
+  <link rel="icon" type="image/png" href="/images/favicons/favicon-32x32.png" sizes="32x32">
+  <link rel="icon" type="image/png" href="/images/favicons/favicon-194x194.png" sizes="194x194">
+  <link rel="icon" type="image/png" href="/images/favicons/favicon-96x96.png" sizes="96x96">
+  <link rel="icon" type="image/png" href="/images/favicons/android-chrome-192x192.png" sizes="192x192">
+  <link rel="icon" type="image/png" href="/images/favicons/favicon-16x16.png" sizes="16x16">
+  <link rel="manifest" href="/images/favicons/manifest.json">
+  <link rel="shortcut icon" href="/images/favicons/favicon.ico">
+  <meta name="msapplication-TileColor" content="#ffc40d">
+  <meta name="msapplication-TileImage" content="/images/favicons/mstile-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost//2016/WMI-Queries-For-Incident-Response/">
+  <link rel="alternate" type="application/rss+xml" title="Tony Latteri" href="/feed.xml">
+</head>
+
+
+  <body>
+    <span class="mobile btn-mobile-menu">
+  <i class="icon icon-list btn-mobile-menu__icon"></i>
+  <i class="icon icon-x-circle btn-mobile-close__icon hidden"></i>
+</span>
+  
+<header class="panel-cover" style="background-image: url(/images/cover.jpg)">
+  <div class="panel-main">
+
+    <div class="panel-main__inner panel-inverted">
+    <div class="panel-main__content">
+        <a href="/" title="link to home of Tony Latteri">
+          <h1 class="panel-cover__title panel-title">Tony Latteri</h1>
+        </a>
+        <hr class="panel-cover__divider">
+        <p class="panel-cover__description">VG9ueS5MYXR0ZXJpQEdtYWlsLmNvbQo=</p>
+        <hr class="panel-cover__divider panel-cover__divider--secondary">
+
+        <div class="navigation-wrapper">
+
+          <nav class="cover-navigation cover-navigation--primary">
+            <ul class="navigation">
+              <li class="navigation__item"><a href="/#blog" title="link to Tony Latteri blog" class="blog-button">Blog</a></li>
+            </ul>
+          </nav>
+
+          <nav class="cover-navigation navigation--social">
+            <ul class="navigation">
+          
+            
+
+            
+
+            
+
+            
+
+            
+
+            <!-- RSS -->
+            <li class="navigation__item">
+              <a href="/feed.xml" title="Subscribe" target="_blank">
+                <i class="icon icon-rss"></i>
+                <span class="label">RSS</span>
+              </a>
+            </li>
+          
+            </ul>
+          </nav>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="panel-cover--overlay"></div>
+  </div>
+</header>
+
+
+    <div class="content-wrapper">
+      <div class="content-wrapper__inner">
+        <article class="post-container post-container--single">
+  <header class="post-header">
+    <div class="post-meta">
+      <time datetime="9 Apr 2016" class="post-meta__date date">9 Apr 2016</time> &#8226; <span class="post-meta__tags">on <a href="/tags/#wmi">wmi</a> <a href="/tags/#windows">windows</a> </span>
+    </div>
+    <h1 class="post-title">WMI: Queries For Incident Response</h1>
+  </header>
+
+  <section class="post">
+    <p>Windows Management Instrumentation, WMI, is a very powerful tool when it comes to doing incident response or general
+investigations related to Windows events.</p>
+
+<p>Per <a href="https://msdn.microsoft.com/en-us/library/windows/desktop/aa394582(v=vs.85).aspx">Microsoft</a>…</p>
+
+<blockquote>
+  <p>Windows Management Instrumentation (WMI) is the infrastructure for management data and operations on Windows-based operating
+systems. You can write WMI scripts or applications to automate administrative tasks on remote computers but WMI also
+supplies management data to other parts of the operating system and products, for example System Center Operations
+Manager, formerly Microsoft Operations Manager (MOM), or Windows Remote Management (WinRM).</p>
+</blockquote>
+
+<h3 id="setup">Setup</h3>
+<hr />
+<p>WMI commands are typically executed from a Windows machine, however there is a WMIC client for linux which works pretty well.
+I’m going to make an effort at porting the Windows WMI syntax to the Linux equivalent (and vice versa ) for those that prefer to execute
+incident response activities from that type of environment. Please note that there appears to be an issue, possible memory leak,
+with the WMIC client for Linux. For example, if you attempt to pull a large amount of data (think of historical event logs),
+the Linux WMIC client will crash and only produce partial information. If a large amount of data is being requested,
+it’s best to use a Windows machine.</p>
+
+<p>Windows:</p>
+
+<blockquote>
+  <p>WMI should be installed by default on your updated Windows OS.</p>
+</blockquote>
+
+<p>Linux:</p>
+
+<blockquote>
+  <p>Review the installation instructions located on <a href="https://www.aldeid.com/wiki/Wmic-linux">Aldeid.com</a>.</p>
+</blockquote>
+
+<p>Please take into consideration that the credentials used for the following commands will need to have the appropriate
+administrative permissions to have successful execution.</p>
+
+<h3 id="commands">Commands</h3>
+<hr />
+<p>The following commands are to be executed from within a bash shell or windows command prompt. In a following article, we’ll
+discuss how to create a Python script to automate this process.</p>
+
+<p>For the Windows command, it’s assumed the user you are currently logged in as has the appropriate permissions to execute remote WMI commands.</p>
+
+<h4 id="logged-on-user">Logged On User</h4>
+<p><strong>Windows:</strong> <code class="highlighter-rouge">wmic /node:(computer ip) path Win32_ComputerSystem</code></p>
+
+<p><strong>Linux:</strong> <code class="highlighter-rouge">wmic -U (domain)\\(account) //(computer ip) "select * from Win32_computersystem"</code></p>
+
+<h4 id="check-anti-virus">Check Anti-Virus</h4>
+<p><strong>Windows:</strong> <code class="highlighter-rouge">wmic /node:(computer ip) /namespace:\\root\\SecurityCenter2 path AntiVirusProduct</code></p>
+
+<p><strong>Linux:</strong> <code class="highlighter-rouge">wmic --namespace=root\\SecurityCenter2 -U (domain)\\(account) //(computer ip) "Select * from AntiVirusProduct"</code></p>
+
+<h4 id="check-for-running-processes">Check For Running Processes</h4>
+<p><strong>Windows:</strong> <code class="highlighter-rouge">wmic /node:(computer ip) process get | findstr /I (executable name)</code></p>
+
+<p><strong>Linux:</strong> <code class="highlighter-rouge">wmic --namespace=root\\SecurityCenter2 -U (domain)\\(account) //(computer ip) "Select * from AntiVirusProduct" | grep -i (executable name)</code></p>
+
+<h4 id="installed-updateshotfixes">Installed Updates/Hotfixes</h4>
+<p><strong>Windows:</strong> <code class="highlighter-rouge">wmic qfe list full /format:htable &gt; C:\hotfixes.htm</code></p>
+
+<p><strong>Linux:</strong> <code class="highlighter-rouge">wmic -U (domain)\\(account) //(computer ip) 'Select * from win32_quickfixengineering'</code></p>
+
+<h4 id="nic-mac-addresses">NIC MAC Addresses</h4>
+<p><strong>Windows:</strong> <code class="highlighter-rouge">wmic /node:(computer ip) nic get MACAddress,Description,NetworkAddresses,Manufacturer</code></p>
+
+<p><strong>Linux:</strong> <code class="highlighter-rouge">wmic -U (domain)\\(account) //(computer ip) "Select * from Win32_NetworkAdapterConfiguration"</code></p>
+
+<h4 id="mac-times">MAC Times</h4>
+<p><strong>Windows:</strong> <code class="highlighter-rouge">wmic /node:(computer ip) path cim_datafile where "Drive='C'"</code></p>
+
+<p><strong>Linux:</strong> <code class="highlighter-rouge">wmic -U (domain)\\(account) //(computer ip) "Select LastModified, LastAccessed, CreationDate, InstallDate, FileSize, FileType, Name from cim_datafile where Drive = 'C:'"</code></p>
+
+<h4 id="pc-restart-event-logs">PC Restart Event Logs</h4>
+<p><strong>Linux:</strong> <code class="highlighter-rouge">wmic -U (domain)\\(account) //(computer_ip) "Select * from Win32_NTLogEvent where (EventCode='1074' or EventCode='6013') and TimeGenerated &gt;='20150101000000.000000-000' and TimeGenerated &lt;= '20150106000000.000000-000'"</code></p>
+
+<h4 id="successful-login-event-logs">Successful Login Event Logs</h4>
+<p><strong>Linux:</strong> <code class="highlighter-rouge">wmic -U (domain)\\(account) //(computer ip) "Select InsertionStrings from Win32_NTLogEvent where (EventCode='4624') and TimeGenerated &gt;='20150101000000.000000-000' and TimeGenerated &lt;= '20150106000000.000000-000'"</code></p>
+
+<h4 id="remote-pc-time">Remote PC Time</h4>
+<p><strong>Linux:</strong> <code class="highlighter-rouge">wmic -U (domain)\\(account) //(computer ip) "Select hour,minute,second from win32_localtime"</code></p>
+
+<h4 id="list-local-accounts">List Local Accounts</h4>
+<p><strong>Linux:</strong> <code class="highlighter-rouge">wmic -U (domain)\\(account) //(computer ip) "select * from Win32_UserAccount Where LocalAccount=True"</code></p>
+
+<h4 id="list-local-groupsusers">List Local Groups/Users</h4>
+<p><strong>Linux:</strong> <code class="highlighter-rouge">wmic -U (domain)\\(account) //(computer ip) "select * from Win32_GroupUser"</code></p>
+
+<h4 id="operating-system-details-including-hostname">Operating System Details including Hostname</h4>
+<p><strong>Linux:</strong> <code class="highlighter-rouge">wmic -U (domain)\\(account) //(computer ip) "Select * from Win32_OperatingSystem"</code></p>
+
+<h4 id="view-installed-programs">View Installed Programs</h4>
+<p><strong>Windows:</strong> <code class="highlighter-rouge">wmic /node:(computer ip) product get /format:csv &gt; C:\output.csv</code></p>
+
+<h4 id="execute-remote-commands">Execute Remote Commands</h4>
+<p><strong>Windows:</strong> <code class="highlighter-rouge">wmic /node:(computer ip) process call create "netstat.exe -ano &gt; C:\output.txt"</code></p>
+
+
+  </section>
+  
+</article>
+
+
+
+      </div>
+
+      <footer class="footer">
+  <span class="footer__copyright">&copy; 2016 Tony. All rights reserved.</span>
+</footer> 
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script type="text/javascript" src="/js/main.js"></script>
+
+    </div>
+  </body>
+</html>

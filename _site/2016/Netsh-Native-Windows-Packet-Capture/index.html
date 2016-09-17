@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width initial-scale=1" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <title>Netsh: Native Windows Packet Capture</title>
+  <meta name="description" content="VG9ueS5MYXR0ZXJpQEdtYWlsLmNvbQo=">
+  <meta name="author" content="Tony">
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Tony Latteri">
+  <meta name="twitter:description" content="VG9ueS5MYXR0ZXJpQEdtYWlsLmNvbQo=">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Tony Latteri">
+  <meta property="og:description" content="VG9ueS5MYXR0ZXJpQEdtYWlsLmNvbQo=">
+
+  <link rel="apple-touch-icon" sizes="57x57" href="/images/favicons/apple-touch-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/images/favicons/apple-touch-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/images/favicons/apple-touch-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/favicons/apple-touch-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/images/favicons/apple-touch-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/images/favicons/apple-touch-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/images/favicons/apple-touch-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/images/favicons/apple-touch-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicons/apple-touch-icon-180x180.png">
+  <link rel="icon" type="image/png" href="/images/favicons/favicon-32x32.png" sizes="32x32">
+  <link rel="icon" type="image/png" href="/images/favicons/favicon-194x194.png" sizes="194x194">
+  <link rel="icon" type="image/png" href="/images/favicons/favicon-96x96.png" sizes="96x96">
+  <link rel="icon" type="image/png" href="/images/favicons/android-chrome-192x192.png" sizes="192x192">
+  <link rel="icon" type="image/png" href="/images/favicons/favicon-16x16.png" sizes="16x16">
+  <link rel="manifest" href="/images/favicons/manifest.json">
+  <link rel="shortcut icon" href="/images/favicons/favicon.ico">
+  <meta name="msapplication-TileColor" content="#ffc40d">
+  <meta name="msapplication-TileImage" content="/images/favicons/mstile-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost//2016/Netsh-Native-Windows-Packet-Capture/">
+  <link rel="alternate" type="application/rss+xml" title="Tony Latteri" href="/feed.xml">
+</head>
+
+
+  <body>
+    <span class="mobile btn-mobile-menu">
+  <i class="icon icon-list btn-mobile-menu__icon"></i>
+  <i class="icon icon-x-circle btn-mobile-close__icon hidden"></i>
+</span>
+  
+<header class="panel-cover" style="background-image: url(/images/cover.jpg)">
+  <div class="panel-main">
+
+    <div class="panel-main__inner panel-inverted">
+    <div class="panel-main__content">
+        <a href="/" title="link to home of Tony Latteri">
+          <h1 class="panel-cover__title panel-title">Tony Latteri</h1>
+        </a>
+        <hr class="panel-cover__divider">
+        <p class="panel-cover__description">VG9ueS5MYXR0ZXJpQEdtYWlsLmNvbQo=</p>
+        <hr class="panel-cover__divider panel-cover__divider--secondary">
+
+        <div class="navigation-wrapper">
+
+          <nav class="cover-navigation cover-navigation--primary">
+            <ul class="navigation">
+              <li class="navigation__item"><a href="/#blog" title="link to Tony Latteri blog" class="blog-button">Blog</a></li>
+            </ul>
+          </nav>
+
+          <nav class="cover-navigation navigation--social">
+            <ul class="navigation">
+          
+            
+
+            
+
+            
+
+            
+
+            
+
+            <!-- RSS -->
+            <li class="navigation__item">
+              <a href="/feed.xml" title="Subscribe" target="_blank">
+                <i class="icon icon-rss"></i>
+                <span class="label">RSS</span>
+              </a>
+            </li>
+          
+            </ul>
+          </nav>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="panel-cover--overlay"></div>
+  </div>
+</header>
+
+
+    <div class="content-wrapper">
+      <div class="content-wrapper__inner">
+        <article class="post-container post-container--single">
+  <header class="post-header">
+    <div class="post-meta">
+      <time datetime="26 Feb 2016" class="post-meta__date date">26 Feb 2016</time> &#8226; <span class="post-meta__tags">on <a href="/tags/#netsh">netsh</a> <a href="/tags/#windows">windows</a> </span>
+    </div>
+    <h1 class="post-title">Netsh: Native Windows Packet Capture</h1>
+  </header>
+
+  <section class="post">
+    <p>At some point, you may find yourself in the same shoes I was in and think to yourself “Is it possible to acquire a packet capture on a Windows machine using native tools?”.  It’s not very common that the average end-user is going to have items like Tshark or Tcpdump installed on their box to work with from the command line. So, if you aren’t collecting the neccessary packets through a centralized aggregater and would like to have minimal disturbence on the target machine, what can you do?</p>
+
+<p>Netsh to the rescue!</p>
+
+<p>The following is what I went through recently and Rob VandenBrink’s artcile over at the InfoSec Handlers Diary Blog was a fantastic resource.</p>
+
+<h3 id="whats-netsh">What’s Netsh?</h3>
+<hr />
+<p>Aren’t familiar with Netsh? Let’s see what Microsoft has to say about it…</p>
+
+<p>“Netsh is a command-line scripting utility that allows you to, either locally or remotely, display or modify the network configuration of a computer that is currently running. Netsh also provides a scripting feature that allows you to run a group of commands in batch mode against a specified computer. Netsh can also save a configuration script in a text file for archival purposes or to help you configure other servers.”</p>
+
+<p>Hmmm, I don’t see anything specifying that it has the ability to create packet captures. Lets take a look at the help options</p>
+
+<p><code class="highlighter-rouge">C:\Users\user&gt;netsh /?</code></p>
+
+<pre><code class="language-batch">Usage: netsh [-a AliasFile] [-c Context] [-r RemoteMachine] [-u [DomainName\]Use
+rName] [-p Password | *] [Command | -f ScriptFile]
+</code></pre>
+
+<p>The following commands are available:</p>
+
+<pre><code class="language-batch">Commands in this context:
+?              - Displays a list of commands.
+add            - Adds a configuration entry to a list of entries.
+advfirewall    - Changes to the netsh advfirewall context.
+branchcache    - Changes to the netsh branchcache context.
+bridge         - Changes to the netsh bridge context.
+delete         - Deletes a configuration entry from a list of entries.
+dhcpclient     - Changes to the `netsh dhcpclient' context.
+dnsclient      - Changes to the netsh dnsclient context.
+dump           - Displays a configuration script.
+exec           - Runs a script file.
+firewall       - Changes to the netsh firewall context.
+help           - Displays a list of commands.
+http           - Changes to the netsh http context.
+interface      - Changes to the netsh interface context.
+ipsec          - Changes to the netsh ipsec context.
+lan            - Changes to the netsh lan context.
+mbn            - Changes to the netsh mbn context.
+namespace      - Changes to the netsh namespace context.
+nap            - Changes to the netsh nap context.
+netio          - Changes to the netsh netio context.
+p2p            - Changes to the netsh p2p context.
+ras            - Changes to the netsh ras context.
+rpc            - Changes to the netsh rpc context.
+set            - Updates configuration settings.
+show           - Displays information.
+trace          - Changes to the netsh trace context.
+wcn            - Changes to the netsh wcn context.
+wfp            - Changes to the netsh wfp context.
+winhttp        - Changes to the netsh winhttp context.
+winsock        - Changes to the netsh winsock context.
+wlan           - Changes to the netsh wlan context.
+</code></pre>
+
+<p>Nothing to obvious, but lets look into the trace option help</p>
+
+<p><code class="highlighter-rouge">C:\Users\user&gt;netsh trace /?</code></p>
+
+<p>The following commands are available:</p>
+
+<pre><code class="language-batch">Commands in this context:
+?              - Displays a list of commands.
+convert        - Converts a trace file to an HTML report.
+correlate      - Normalizes or filters a trace file to a new output file.
+diagnose       - Start a diagnose session.
+dump           - Displays a configuration script.
+help           - Displays a list of commands.
+show           - List interfaces, providers and tracing state.
+start          - Starts tracing.
+stop           - Stops tracing.
+</code></pre>
+
+<p>Perhaps we’re onto something here. What does microsoft have to say about the trace option for netsh?</p>
+
+<p><a href="https://msdn.microsoft.com/en-us/library/windows/desktop/dd569142(v=vs.85).aspx">Microsoft Netsh Trace</a></p>
+
+<p>With the trace option, we’re able to specify what type of trace we want, along with additional filters down to what IP addresses are of interest for the capture.</p>
+
+<p>A full list of capture filters can be obtained with the following.</p>
+
+<p><code class="highlighter-rouge">netsh trace show capturefilterhelp</code></p>
+
+<h3 id="getting-it-to-run">Getting It To Run</h3>
+<hr />
+<p>Awesome. Now we need to get it to run on the machine…
+The way I went about it was through the use of PsExec, a great remote admin tool apart of the PsTools suite by Mark Russinovich. I should also note that admin priveledges will be needed to accomplish this.</p>
+
+<p><code class="highlighter-rouge">psexec.exe -accepteula \\\\remoteip\c$ cmd.exe</code></p>
+
+<p>Now that we’re on the machine, lets get a trace going</p>
+
+<p><code class="highlighter-rouge">netsh trace start capture=yes Ethernet.Type=IPv4  IPv4.Address=X.X.X.X</code></p>
+
+<p>Once we think we got what we need, lets stop the trace.</p>
+
+<p><code class="highlighter-rouge">netsh trace stop</code></p>
+
+<h3 id="viewing-what-you-capture">Viewing What You Capture</h3>
+<hr />
+<p>The output will be in an .ETL format. In order to view it, you must utilize Microsoft’s Message Nalayzer application. As Rob mentions within his post, you can then leverage the export feature to get a PCAP version for Wireshark or TCPDUMP usage.</p>
+
+  </section>
+  
+</article>
+
+
+
+      </div>
+
+      <footer class="footer">
+  <span class="footer__copyright">&copy; 2016 Tony. All rights reserved.</span>
+</footer> 
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script type="text/javascript" src="/js/main.js"></script>
+
+    </div>
+  </body>
+</html>

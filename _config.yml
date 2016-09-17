@@ -1,0 +1,39 @@
+# Site settings
+title: Tony Latteri
+description: 'VG9ueS5MYXR0ZXJpQEdtYWlsLmNvbQo='
+url: 'http://thelatteri.com'
+baseurl: '/'
+# google_analytics: 'UA-XXXXXX-X'
+# disqus_shortname: 'your-disqus-name'
+
+author:
+  name: Tony Latteri
+  email:
+  twitter_username:
+  facebook_username:
+  github_username:
+  linkedin_username:
+
+defaults:
+  -
+    scope:
+      path: ''
+      type: 'posts'
+    values:
+        layout: 'post'
+
+# Build settings
+destination: _site
+paginate: 10
+permalink: /:year/:title/
+markdown: kramdown
+highlighter: rouge
+
+kramdown:
+  # use Github Flavored Markdown
+  input: GFM
+  # do not replace newlines by <br>s
+  hard_wrap: false
+
+gems: ['jekyll-paginate']
+exclude: ['README.md', 'Gemfile', 'Gemfile.lock', 'screenshot.png']

@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  
+    
+    <url>
+      <loc>http://localhost/2016/Malware-A-Look-Into-Fake-Cryptoware/</loc>
+      
+        <lastmod>2016-05-24T16:20:35-04:00</lastmod>
+      
+      
+        <changefreq>monthly</changefreq>
+      
+      
+        <priority>0.5</priority>
+      
+    </url>
+    
+  
+    
+    <url>
+      <loc>http://localhost/2016/WMI-Queries-For-Incident-Response/</loc>
+      
+        <lastmod>2016-04-09T11:30:35-04:00</lastmod>
+      
+      
+        <changefreq>monthly</changefreq>
+      
+      
+        <priority>0.5</priority>
+      
+    </url>
+    
+  
+    
+    <url>
+      <loc>http://localhost/2016/Netsh-Native-Windows-Packet-Capture/</loc>
+      
+        <lastmod>2016-02-26T13:12:02-05:00</lastmod>
+      
+      
+        <changefreq>monthly</changefreq>
+      
+      
+        <priority>0.5</priority>
+      
+    </url>
+    
+  
+    
+    <url>
+      <loc>http://localhost/2015/JavaScript-Deobfuscate-With-Just-A-Print-Function/</loc>
+      
+        <lastmod>2015-10-18T15:25:30-04:00</lastmod>
+      
+      
+        <changefreq>monthly</changefreq>
+      
+      
+        <priority>0.5</priority>
+      
+    </url>
+    
+  
+    
+    <url>
+      <loc>http://localhost/2015/Python-Wireless-Sniffing-With-Scapy/</loc>
+      
+        <lastmod>2015-04-21T10:39:55-04:00</lastmod>
+      
+      
+        <changefreq>monthly</changefreq>
+      
+      
+        <priority>0.5</priority>
+      
+    </url>
+    
+  
+  
+    
+    <url>
+      <loc>http://localhost/categories/</loc>
+      
+        <lastmod>2016-09-17T09:57:40-04:00</lastmod>
+      
+      
+        <changefreq>monthly</changefreq>
+      
+      
+        <priority>0.3</priority>
+      
+    </url>
+    
+  
+    
+    <url>
+      <loc>http://localhost/feed.xml</loc>
+      
+        <lastmod>2016-09-17T09:57:40-04:00</lastmod>
+      
+      
+        <changefreq>monthly</changefreq>
+      
+      
+        <priority>0.3</priority>
+      
+    </url>
+    
+  
+    
+    <url>
+      <loc>http://localhost/</loc>
+      
+        <lastmod>2016-09-17T09:57:40-04:00</lastmod>
+      
+      
+        <changefreq>monthly</changefreq>
+      
+      
+        <priority>0.3</priority>
+      
+    </url>
+    
+  
+    
+    <url>
+      <loc>http://localhost/js/main.js</loc>
+      
+        <lastmod>2016-09-17T09:57:40-04:00</lastmod>
+      
+      
+        <changefreq>monthly</changefreq>
+      
+      
+        <priority>0.3</priority>
+      
+    </url>
+    
+  
+    
+  
+    
+    <url>
+      <loc>http://localhost/tags/</loc>
+      
+        <lastmod>2016-09-17T09:57:40-04:00</lastmod>
+      
+      
+        <changefreq>monthly</changefreq>
+      
+      
+        <priority>0.3</priority>
+      
+    </url>
+    
+  
+</urlset>
